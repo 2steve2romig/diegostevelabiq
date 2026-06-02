@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Railway (and most cloud hosts) supply PORT at runtime
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://+:{port}");
+
 // Use writable path for SQLite in containers; fallback to local for dev
 var dbPath = Environment.GetEnvironmentVariable("DB_PATH") ?? "labiq.db";
 builder.Services.AddDbContext<LabIqDbContext>(opt =>

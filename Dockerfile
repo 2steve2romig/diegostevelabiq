@@ -8,7 +8,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Railway sets PORT dynamically
-ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
-
 CMD ["dotnet", "LabIQ.Api.dll"]
