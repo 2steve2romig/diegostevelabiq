@@ -12,8 +12,12 @@ import type {
 
 const ACTOR_ID = 'demo-user';
 
+// In dev the Vite proxy forwards /api → localhost:5000.
+// In production (Vercel) VITE_API_URL points at the Railway service.
+const BASE = import.meta.env.VITE_API_URL ?? '';
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(`${BASE}${path}`, {
     ...init,
     headers: {
       'X-User-Id': ACTOR_ID,
@@ -58,7 +62,7 @@ export const api = {
     upload: async (labId: number, file: File): Promise<CatalogUploadResult> => {
       const form = new FormData();
       form.append('file', file);
-      const res = await fetch(`/api/labs/${labId}/catalog/upload`, {
+      const res = await fetch(`${BASE}/api/labs/${labId}/catalog/upload`, {
         method: 'POST',
         headers: { 'X-User-Id': ACTOR_ID },
         body: form,
