@@ -1,0 +1,9 @@
+Test Code,Test Description,Analyte Code,Analyte Description,Matrix,Reference Method,Sample Size,Test Category,Reporting Unit
+QM103,Listeria monocytogenes detection,P001,Listeria monocytogenes,RTE food,AOAC RI 070902,25 g,Pathogen detection,Detected / Not detected per 25 g
+QM103,Listeria monocytogenes detection,P002,Listeria spp.,RTE food,AOAC RI 070902,25 g,Pathogen detection,Detected / Not detected per 25 g
+QM117,Salmonella spp. detection,P003,Salmonella spp.,Raw poultry,FDA BAM Ch. 5,25 g,Pathogen detection,Detected / Not detected per 25 g
+QM117,Salmonella spp. detection,P004,Salmonella Enteritidis,Raw poultry,FDA BAM Ch. 5,25 g,Pathogen detection,Detected / Not detected per 25 g
+,Yeast and Mold combined enumeration,P009,Yeast,Bakery ingredient,FDA BAM Ch. 18,10 g,Enumeration,CFU/g
+,Yeast and Mold combined enumeration,P010,Mold,Bakery ingredient,FDA BAM Ch. 18,10 g,Enumeration,CFU/g
+QM999,Quick screen coliforms only,,,Finished product,Internal SOP MIC-042,1 swab,Indicator organisms,Screen result
+QC089,Cronobacter sakazakii powdered formula,A012,Cronobacter sakazakii,Powdered formula,ISO 22964:2017,25 g,Pathogen detection,Detected / Not detected per 25 g

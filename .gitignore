@@ -1,0 +1,23 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.db
+*.db-shm
+*.db-wal
+labiq-api/LabIQ.Api/labiq.db
+
+# Node
+node_modules/
+labiq-ui/dist/
+
+# IDE
+.vs/
+.idea/
+*.DS_Store
+
+# Secrets / env
+.env
+.env.local
+appsettings.Local.json
