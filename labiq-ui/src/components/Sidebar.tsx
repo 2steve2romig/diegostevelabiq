@@ -1,14 +1,18 @@
 import { NavLink } from 'react-router-dom';
 
 const NAV_ITEMS = [
-  { to: '/labs', label: 'Labs', icon: '🏭' },
-  { to: '/catalog', label: 'Catalog Search', icon: '🔬' },
+  { to: '/dashboard',  label: 'Dashboard',      icon: '📊' },
+  { to: '/labs',       label: 'Labs',            icon: '🏭' },
+  { to: '/tests',      label: 'Master Tests',    icon: '🔬' },
+  { to: '/analytes',   label: 'Master Analytes', icon: '🧪' },
+  { to: '/offerings',  label: 'Lab Offerings',   icon: '📋' },
+  { to: '/transports', label: 'Transports',      icon: '📡' },
 ];
 
 export function Sidebar() {
   return (
     <aside style={{
-      width: 196,
+      width: 200,
       background: 'var(--st-cyan)',
       color: 'white',
       display: 'flex',

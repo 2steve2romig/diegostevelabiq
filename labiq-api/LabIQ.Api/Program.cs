@@ -47,5 +47,9 @@ app.UseCors();
 
 app.MapLabEndpoints();
 app.MapCatalogEndpoints();
+app.MapDashboardEndpoints();
+app.MapMasterTestsEndpoints();
+app.MapMasterAnalytesEndpoints();
+app.MapOfferingsEndpoints();
 
 app.Run();

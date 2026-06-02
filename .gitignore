@@ -17,6 +17,13 @@ labiq-ui/dist/
 .idea/
 *.DS_Store
 
+# Source reference documents (not part of the codebase)
+Labs_extracted/
+Labs_nested_extracted/
+Labs_text_extracts/
+Lab_IQ_Onboarding_Portal_Functional_edited.html
+Lab_IQ_Onboarding_Portal_Functional_edited.zip
+
 # Secrets / env
 .env
 .env.local

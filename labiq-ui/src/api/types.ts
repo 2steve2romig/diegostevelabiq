@@ -48,6 +48,30 @@ export interface ParameterSummary {
   defaultResultType: string | null;
 }
 
+export interface MasterTest {
+  testCodeId: number;
+  code: string;
+  currentDescription: string;
+  activeFlag: boolean;
+  labId: number;
+  labCode: string;
+  parameters: ParameterSummary[];
+}
+
+export interface MasterAnalyte {
+  parameterCodeId: number;
+  code: string;
+  currentDescription: string;
+  labId: number;
+  methodCode: string | null;
+  methodName: string | null;
+  defaultUnit: string | null;
+  defaultResultType: string | null;
+  activeFlag: boolean;
+  usedInTests: string[];
+  testCount: number;
+}
+
 export interface DescriptionHistoryEntry {
   description: string;
   effectiveStart: string;
@@ -109,4 +133,23 @@ export interface CreateLocationRequest {
 export interface TransitionRequest {
   targetState: string;
   reason: string;
+}
+
+export interface DashboardStats {
+  masterTestCount: number;
+  orphanTestCount: number;
+  masterAnalyteCount: number;
+  connectedLabCount: number;
+  testParameterBridges: number;
+  labOfferingRows: number;
+  recentActivity: { eventType: string; timestampUtc: string; actorId: string; objectType: string; reason: string | null }[];
+  labCoverage: { labCompanyCode: string; legalName: string; total: number; covered: number; status: string }[];
+}
+
+export interface OfferingRow {
+  testCodeId: number;
+  code: string;
+  currentDescription: string;
+  activeFlag: boolean;
+  offered: boolean;
 }
