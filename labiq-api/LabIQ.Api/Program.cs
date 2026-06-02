@@ -5,14 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Use writable path for SQLite in containers; fallback to local for dev
+var dbPath = Environment.GetEnvironmentVariable("DB_PATH") ?? "labiq.db";
 builder.Services.AddDbContext<LabIqDbContext>(opt =>
-    opt.UseSqlite("Data Source=labiq.db"));
+    opt.UseSqlite($"Data Source={dbPath}"));
 
 builder.Services.AddScoped<AuditService>();
 builder.Services.AddScoped<CatalogIngestionService>();
 
+// Allow localhost dev + any Vercel preview/production URL
+var allowedOrigins = (Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") ?? "http://localhost:5173")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries);
+
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins("http://localhost:5173")
+    policy.WithOrigins(allowedOrigins)
           .AllowAnyMethod()
           .AllowAnyHeader()));
 
