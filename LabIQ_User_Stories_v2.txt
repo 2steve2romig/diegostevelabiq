@@ -1,0 +1,552 @@
+============================================================
+LAB IQ — USER STORIES v2.0
+Consolidated from SRS v0.1, prototype implementation, and
+original user stories provided 2026-06-03
+============================================================
+
+
+User Story 1.1
+Title:
+Lab IQ Feature Flag & Access Control
+
+As a SureTrend Owner
+
+I want to enable or disable Lab IQ access for my account and control
+which roles can access it
+
+So that only approved accounts can use Lab IQ before general release
+and existing SureTrend role permissions govern all actions within it
+
+Development Requirements / User Acceptance Criteria:
+A Lab IQ feature flag shall be available at the account level.
+The feature flag shall default to Disabled.
+When enabled, Lab IQ shall appear in the SureTrend navigation menu.
+When disabled, Lab IQ shall not appear in the SureTrend navigation menu.
+Users shall not be able to access Lab IQ through direct URLs when the
+  feature flag is disabled.
+Existing SureTrend role permissions (Owner, Global Admin, Admin, User)
+  shall control access and actions within Lab IQ.
+Feature flag changes shall take effect immediately without requiring
+  a page refresh.
+Only Owner may change the feature flag setting.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Lab IQ Feature Flag Enabled
+Lab IQ Feature Flag Disabled
+
+
+------------------------------------------------------------
+
+User Story 1.2
+Title:
+Manage Laboratories and Locations
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to create, view, edit, search, and manage laboratories and their
+physical locations
+
+So that laboratory information, contacts, certifications, and location
+details remain accurate and available throughout Lab IQ
+
+Development Requirements / User Acceptance Criteria:
+Owner, Global Admin, Admin can create new laboratory records.
+Owner, Global Admin, Admin can edit existing laboratory information.
+Owner, Global Admin, Admin, and Users can view a list of laboratories.
+Owner, Global Admin, Admin, and Users can search laboratories by name,
+  code, location, or contact information.
+Laboratory list results shall support sorting and paging.
+
+Each laboratory record shall support:
+  Lab Code (unique within the account, immutable once saved)
+  Lab Name
+  Primary Address
+  Primary Contact Name
+  Contact Email
+  Contact Phone
+  Source LIMS (e.g., LabWare, Eurofins eLIMS, STARLIMS)
+  Accreditation Body
+  Accreditation Number
+  Status (Active / Inactive)
+
+Each laboratory shall support one or more Lab Locations.
+Each Lab Location shall support:
+  Location Code (unique within the lab, immutable once saved)
+  Address
+  Time Zone
+  Available From Date
+  Status (derived from onboarding lifecycle — see Story 1.7)
+
+Owner, Global Admin, Admin can add Lab Locations to an existing lab.
+Owner, Global Admin, Admin can deactivate a Lab Location.
+Deactivating a location prevents new orders from being routed to it
+  but historical records remain queryable.
+Owner, Global Admin, Admin can navigate to a laboratory's offerings
+  directly from the laboratory record.
+Owner, Global Admin, Admin can deactivate a laboratory when no active
+  orders or integrations exist.
+The system shall prevent deletion when dependent records exist and
+  display an appropriate message.
+Deactivating a laboratory deactivates all of its locations.
+Users shall only see and manage laboratories permitted by their role.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Laboratory Created
+Laboratory Updated
+Laboratory Activated
+Laboratory Deactivated
+Lab Location Added
+Lab Location Updated
+Lab Location Deactivated
+
+
+------------------------------------------------------------
+
+User Story 1.3
+Title:
+Manage Master Tests
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to create, view, edit, activate, deactivate, and manage
+Master Tests
+
+So that all laboratories use standardized test definitions and
+laboratory offerings can be built from a controlled, compliant
+catalog of tests
+
+Development Requirements / User Acceptance Criteria:
+Users can view all Master Tests.
+Users can create new Master Tests.
+Users can edit existing Master Tests.
+Users can activate or deactivate Master Tests.
+Users can search and filter Master Tests by code, description,
+  category, or lab.
+
+Each Master Test shall support:
+  Test Code (unique within the lab, immutable once saved)
+  Test Description (mutable — changes are versioned with effective dates)
+  Matrix (e.g., RTE food, Raw poultry, Environmental)
+  Sample Size (e.g., 25 g, 1 swab)
+  Test Category (e.g., Pathogen detection, Enumeration)
+  Status (Active / Inactive)
+
+Test description changes shall be tracked with effective start and end
+  dates so historical records remain interpretable at any past date.
+A Master Test may be associated with one or more Master Analytes
+  (1..* relationship — never collapse on test code alone).
+A Master Test may be assigned to one or more Laboratory Offerings.
+Deactivating a Master Test shall prevent new assignments but shall
+  not affect historical records or active offerings.
+The system shall prevent deletion of Master Tests that are currently
+  assigned to Laboratory Offerings and display an appropriate message.
+Soft deactivation (Status = Inactive) shall be used in place of
+  deletion wherever dependent records exist.
+Users shall only manage Master Tests permitted by their role.
+Search and filtering shall perform within system performance standards.
+Role-based permissions shall be enforced for all actions.
+In-app confirmation messages shall display after create, update,
+  activate, or deactivate actions.
+Validation messages shall display when duplicate codes or missing
+  required fields are detected.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Master Test Created
+Master Test Updated
+Master Test Activated
+Master Test Deactivated
+
+
+------------------------------------------------------------
+
+User Story 1.4
+Title:
+Manage Master Analytes
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to create, view, edit, activate, deactivate, and manage
+Master Analytes
+
+So that laboratories and test offerings use consistent analyte
+definitions and compliant history is maintained throughout Lab IQ
+
+Development Requirements / User Acceptance Criteria:
+Owner, Global Admin, or Admin can view all Master Analytes.
+Owner, Global Admin, or Admin can create new Master Analytes.
+Owner, Global Admin, or Admin can edit existing Master Analytes.
+Owner, Global Admin, or Admin can activate or deactivate Master Analytes.
+Owner, Global Admin, or Admin can search and filter Master Analytes.
+
+Each Master Analyte shall support:
+  Analyte Code (unique within the lab, immutable once saved)
+  Analyte Description (mutable — changes are versioned with effective dates)
+  Reference Method (e.g., AOAC RI 070902, FDA BAM Ch. 5, ISO 22964:2017)
+  Default Reporting Unit (e.g., CFU/g, Detected / Not detected per 25 g)
+  Default Result Type (Qualitative, Quantitative, Semi-quantitative, MPN)
+  Status (Active / Inactive)
+
+Analyte description changes shall be tracked with effective start and
+  end dates so historical records remain interpretable at any past date.
+A Master Analyte may be associated with one or more Master Tests.
+Deactivating a Master Analyte shall prevent new assignments but shall
+  not affect historical records or active test associations.
+The system shall prevent deletion of Master Analytes that are currently
+  assigned to Master Tests or Laboratory Offerings and display an
+  appropriate message.
+Soft deactivation (Status = Inactive) shall be used in place of
+  deletion wherever dependent records exist.
+An analyte can be linked to an existing test or created inline during
+  the test-analyte linking workflow.
+Users shall only manage Master Analytes permitted by their role.
+Search and filtering shall perform within system performance standards.
+Role-based permissions shall be enforced for all actions.
+In-app confirmation messages shall display after create, update,
+  activate, or deactivate actions.
+Validation messages shall display when duplicate codes or missing
+  required fields are detected.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Master Analyte Created
+Master Analyte Updated
+Master Analyte Activated
+Master Analyte Deactivated
+
+
+------------------------------------------------------------
+
+User Story 1.5
+Title:
+Import Laboratory Catalog Data
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to upload and import laboratory catalog data using a guided
+wizard with column mapping, validation preview, and all-or-nothing
+commit
+
+So that laboratories, master tests, analytes, and test-analyte
+associations can be loaded efficiently without manual entry and
+without risk of partial or corrupt data being committed to the system
+
+Development Requirements / User Acceptance Criteria:
+Owner, Global Admin, or Admin can upload a catalog file in CSV or
+  XLSX format.
+The import shall follow a guided multi-step workflow:
+  Step 1 — Choose File: drag-and-drop or file browse, accepts CSV/XLSX.
+  Step 2 — Map Columns: system auto-detects canonical field mappings
+    from column headers; user can override any mapping using a dropdown.
+    A preview of the first 10 data rows shall be displayed.
+    Required fields (Test Code, Test Description) shall be clearly marked.
+  Step 3 — Select Lab: user selects which laboratory receives the catalog.
+  Step 4 — Confirm & Commit: summary of records to be created or updated,
+    plain-language description of what will happen, Commit button.
+The system shall validate all rows before committing any records.
+If any row fails validation, no records shall be committed (all-or-nothing).
+Validation errors shall display the row number, field name, and rule
+  violated for each failed row.
+Successfully validated records shall be committed in a single operation.
+The import shall preserve the 1..* test-to-analyte relationship —
+  a test with multiple analytes will appear on multiple rows and
+  all rows shall be imported as separate analyte associations.
+Test description changes detected during re-import shall create new
+  effective-dated history rows rather than overwriting existing records.
+Import summary shall display:
+  Total Records Processed
+  Tests Created
+  Tests Updated
+  Analytes Created
+  Analytes Updated
+  Associations Created
+  Processing Date / Time
+Owner, Global Admin, or Admin can download an error report for
+  failed records.
+Historical import records shall be available for review showing
+  date, user, file name, and summary counts.
+Users shall only perform imports permitted by their role.
+Large catalog files (up to 10,000 rows) shall process within
+  acceptable system performance standards.
+Duplicate detection: a record is a duplicate if the same Test Code
+  already exists for the selected lab. Duplicates trigger a
+  description-history update, not a new record.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Catalog Import Completed
+Audit records shall include:
+  Total Records
+  Tests Created / Updated
+  Analytes Created / Updated
+  Import Status (Success / Rejected)
+  File Name
+
+
+------------------------------------------------------------
+
+User Story 1.6
+Title:
+Manage Laboratory Test Offerings
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to view and manage which tests each laboratory location offers
+
+So that SureTrend can accurately present the test menu available at
+each location and route orders only to locations that offer the
+requested test
+
+Development Requirements / User Acceptance Criteria:
+Owner, Global Admin, or Admin can view all test offerings for a
+  selected laboratory location.
+Owner, Global Admin, or Admin can add or remove tests from a
+  laboratory location's offering.
+Owner, Global Admin, or Admin can activate or deactivate individual
+  test offerings at a location.
+Owner, Global Admin, or Admin can search and filter offerings by
+  test code, description, matrix, or category.
+The offering list shall display for each test:
+  Test Code
+  Test Description
+  Matrix
+  Sample Size
+  Test Category
+  Status (Offered / Not Offered)
+A laboratory may have multiple test offerings across one or more locations.
+A test offering assignment is per location, not per laboratory —
+  different locations of the same lab may offer different tests.
+Offering coverage shall be displayed as a percentage
+  (tests offered / total tests available for that lab).
+Owner, Global Admin, or Admin can bulk-assign all available tests
+  to a location or clear all assignments.
+Deactivating a test offering at a location prevents new orders from
+  requesting that test at that location.
+Historical offering records shall remain unchanged.
+Users shall only see and manage offerings permitted by their role.
+Offering changes shall take effect for new orders immediately.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Test Offering Added
+Test Offering Removed
+Test Offering Activated
+Test Offering Deactivated
+
+
+------------------------------------------------------------
+
+User Story 1.7
+Title:
+Lab Onboarding Lifecycle and Canonical Mapping
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to guide a laboratory location through a structured onboarding
+workflow from initial registration through to live production order
+exchange, with controlled approval gates at each stage
+
+So that no laboratory begins receiving production orders until its
+catalog, mapping, and test transactions have been explicitly validated
+and approved by a SureTrend administrator
+
+Development Requirements / User Acceptance Criteria:
+Each Lab Location shall have a lifecycle status that reflects its
+  current onboarding stage.
+The lifecycle states shall be:
+  Draft — location registered, no catalog loaded
+  Catalog Loaded — at least one test, analyte, association, and
+    offering record exist for this location
+  Mapping Confirmed — SureTrend Admin has approved the canonical
+    field mapping for this location
+  Test Transactions Confirmed — round-trip test transactions over
+    the configured integration channel have been validated
+  Live — location is active and may receive production orders
+  Suspended — location is temporarily inactive; in-flight orders
+    may complete but no new orders are dispatched
+
+Transitions shall only move forward along the defined sequence.
+Only a SureTrend Admin (Owner or Global Admin) may advance a location
+  to Mapping Confirmed, Test Transactions Confirmed, or Live.
+Only a SureTrend Admin may Suspend or Reinstate a location.
+A justification (free-text reason) shall be required for every
+  lifecycle transition and recorded in the audit trail.
+After a catalog is uploaded, the system shall generate a canonical
+  mapping preview showing how each lab field maps to the SureTrend
+  canonical field.
+The SureTrend Admin shall be notified when a lab submits a catalog
+  for mapping review.
+The SureTrend Admin shall explicitly Approve or Reject the mapping.
+  Approval shall record the admin identity, timestamp, and the
+  signature meaning "Approved as canonical mapping for
+  Lab Location [code]."
+  Rejection shall require a comment, return the location to
+  Catalog Loaded, and preserve the rejected mapping snapshot
+  in the audit history.
+Round-trip test transactions shall be tracked separately from
+  production transactions and excluded from production reporting.
+The SureTrend Admin shall explicitly confirm that test transactions
+  are correct before the location can advance to Live.
+A Live location shall appear as selectable in SureTrend Sample Plans.
+Suspending a Live location shall remove it from the Sample Plan picker
+  within 60 seconds and prevent dispatch of new orders.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Lifecycle Transition (with from-state, to-state, and justification)
+Mapping Approved (with electronic signature meaning)
+Mapping Rejected (with rejection comment)
+Test Transactions Confirmed
+Location Suspended
+Location Reinstated
+
+
+------------------------------------------------------------
+
+User Story 1.8
+Title:
+Manage Lab Transport and Integration Channels
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to configure how digital orders and results are exchanged with
+each laboratory location and how physical samples are transported
+to the laboratory
+
+So that SureTrend can dispatch orders and receive results automatically
+over the correct channel and customers have accurate sample shipping
+instructions
+
+Development Requirements / User Acceptance Criteria:
+
+DIGITAL INTEGRATION CHANNELS
+Each Lab Location shall support configuration of one or more digital
+  integration channels for automated order and result exchange.
+Supported channel types shall include:
+  REST API (HTTPS with OAuth 2.0 or mutual TLS)
+  SFTP (SSH key-based authentication, lab-hosted or SureTrend-hosted)
+  Encrypted Email (S/MIME or OpenPGP, lab's choice)
+  Self-Describing PDF (canonical payload embedded in COA PDF)
+At least one active digital channel is required before a location
+  can advance to Live.
+For REST API channels: credentials (client ID / secret or certificate)
+  shall be issued, rotated, and revoked with audit events recorded
+  for each credential lifecycle event.
+For SFTP channels: the lab's public key (ed25519 or RSA >= 3072) shall
+  be stored; password-only authentication shall be rejected.
+For Encrypted Email channels: the lab's S/MIME certificate or PGP
+  public key shall be stored; unsigned or unencrypted messages on
+  the channel shall be rejected.
+A configurable file naming convention shall be supported per location
+  with a default of: YYYYMMDD_CustomerCode_LabCode_Random.ext
+Every inbound file or message received shall produce an acknowledgment
+  record capturing: original file name, received timestamp (UTC),
+  received-by identity, file size in bytes, and SHA-256 checksum.
+Channel configuration changes shall require SureTrend Admin co-approval.
+
+PHYSICAL SAMPLE TRANSPORT
+Each Lab Location may support one or more physical sample transport
+  options describing how samples are shipped to the laboratory.
+Each transport option shall support:
+  Transport Name
+  Transport Code (unique within the account)
+  Description
+  Carrier / Provider (e.g., FedEx, UPS, courier)
+  Estimated Transit Time
+  Temperature Requirements (e.g., Ambient, 2-8°C, Frozen)
+  Status (Active / Inactive)
+A transport option may be assigned to one or more laboratory locations.
+Deactivating a transport option shall prevent new assignments but
+  shall not affect historical records.
+In-app confirmation messages shall display after create, update,
+  activate, or deactivate actions.
+Validation messages shall display when duplicate codes or missing
+  required fields are detected.
+
+Audit Trail:
+The following actions shall be recorded:
+
+Integration Channel Configured
+Integration Channel Updated
+Integration Channel Deactivated
+Credential Issued
+Credential Rotated
+Credential Revoked
+Sample Transport Created
+Sample Transport Updated
+Sample Transport Activated
+Sample Transport Deactivated
+
+
+------------------------------------------------------------
+
+User Story 1.9
+Title:
+View and Search Lab IQ Audit Trail
+
+As a SureTrend Owner, Global Admin, or Admin
+
+I want to view, search, and filter all Lab IQ audit history and
+export records for compliance review
+
+So that I can track configuration changes, user activity, and data
+updates for compliance, accountability, and regulatory audit purposes
+
+Development Requirements / User Acceptance Criteria:
+A dedicated Lab IQ section shall be available within the SureTrend
+  Audit Trail.
+Users can view all Lab IQ audit records they are authorized to access.
+Users can search audit records by free-text (actor, object, reason).
+Users can filter audit records by:
+  Date Range
+  User / Actor
+  Action Type (event type)
+  Object Type (Laboratory, Master Test, Master Analyte, Offering,
+    Import, Lifecycle, Channel, Transport)
+Audit records shall display:
+  Date / Time (UTC, displayed in user local time)
+  User / Actor
+  Role at Time of Action
+  Action Performed
+  Object Type and ID
+  Previous Value
+  New Value
+  Justification / Reason
+Audit records shall be read-only.
+Audit records cannot be edited or deleted by any user role.
+Owner, Global Admin, Admin can export filtered audit records to CSV.
+The audit trail shall cover all Lab IQ modules:
+  Laboratories and Locations
+  Master Tests
+  Master Analytes
+  Lab Offerings
+  Catalog Imports
+  Onboarding Lifecycle and Mapping
+  Integration Channels and Credentials
+  Sample Transport Options
+  Feature Flag Changes
+Audit logging shall occur automatically for all write operations.
+The audit trail shall support point-in-time record reproduction:
+  given a record and a past date, the system shall return the record
+  as it appeared at that date including the descriptions active at
+  that time.
+
+Audit Trail:
+Audit records are the subject of this story and are inherently
+self-recording. No additional audit events are required beyond those
+defined in Stories 1.1 through 1.8.
+
+
+============================================================
+END OF USER STORIES v2.0
+Total: 9 stories (1.1 through 1.9)
+============================================================
