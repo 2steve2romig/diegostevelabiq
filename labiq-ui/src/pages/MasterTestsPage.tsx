@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { api } from '../api/client';
 import type { LabSummary, MasterAnalyte, MasterTest } from '../api/types';
 import { Callout } from '../components/Callout';
@@ -166,8 +166,8 @@ export function MasterTestsPage() {
               <th>Method / Size</th><th>Category</th><th>Lab</th><th>Analytes</th><th>Active</th><th>Actions</th>
             </tr></thead>
             <tbody>
-              {tests.map(tc => (<>
-                <tr key={tc.testCodeId} onClick={() => toggle(tc.testCodeId)} style={{ cursor: 'pointer' }}>
+              {tests.map(tc => (<Fragment key={tc.testCodeId}>
+                <tr onClick={() => toggle(tc.testCodeId)} style={{ cursor: 'pointer' }}>
                   <td style={{ textAlign: 'center', color: 'var(--st-text-soft)', fontSize: 11 }}>{expanded.has(tc.testCodeId) ? '▾' : '▸'}</td>
                   <td><span style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--st-grey-bg)', padding: '2px 6px', borderRadius: 3, fontWeight: 700 }}>{tc.code}</span></td>
                   <td style={{ fontWeight: 500 }}>{tc.currentDescription}</td>
@@ -218,7 +218,7 @@ export function MasterTestsPage() {
                     </div>
                   </td></tr>
                 )}
-              </>))}
+              </Fragment>))}
               {tests.length === 0 && <tr><td colSpan={10} style={{ textAlign: 'center', padding: 32, color: 'var(--st-text-muted)' }}>No tests found.</td></tr>}
             </tbody>
           </table>

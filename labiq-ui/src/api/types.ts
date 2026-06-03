@@ -1,5 +1,6 @@
 export interface LabSummary {
-  labId: number; labCompanyCode: string; legalName: string; primaryContact: string;
+  labId: number; labCompanyCode: string; legalName: string;
+  primaryAddress: string; primaryContact: string;
   locationCount: number; primaryStatus: string; createdAtUtc: string;
   sourceLims?: string; accreditationBody?: string; accreditationNumber?: string;
 }

@@ -30,7 +30,7 @@ public static class OfferingsEndpoints
             {
                 t.TestCodeId, t.Code,
                 CurrentDescription = t.Descriptions.FirstOrDefault(d => d.IsCurrent)?.Description ?? "",
-                t.ActiveFlag,
+                t.ActiveFlag, t.Matrix, t.SampleSize, t.TestCategory,
                 Offered = offeredSet.Contains(t.TestCodeId)
             }));
         });

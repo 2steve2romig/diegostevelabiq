@@ -11,23 +11,28 @@ public static class LabEndpoints
     {
         app.MapGet("/api/labs", async (LabIqDbContext db) =>
         {
+            // Load into memory so enum ordering uses int values, not alphabetical string sort
             var labs = await db.Labs
                 .Include(l => l.Locations)
                 .OrderBy(l => l.LegalName)
-                .Select(l => new
-                {
-                    l.LabId,
-                    l.LabCompanyCode,
-                    l.LegalName,
-                    l.PrimaryContact,
-                    l.CreatedAtUtc,
-                    LocationCount = l.Locations.Count,
-                    PrimaryStatus = l.Locations.Any()
-                        ? l.Locations.OrderByDescending(loc => loc.Status).First().Status.ToString()
-                        : "Draft"
-                })
                 .ToListAsync();
-            return Results.Ok(labs);
+
+            return Results.Ok(labs.Select(l => new
+            {
+                l.LabId,
+                l.LabCompanyCode,
+                l.LegalName,
+                l.PrimaryAddress,
+                l.PrimaryContact,
+                l.AccreditationBody,
+                l.AccreditationNumber,
+                l.SourceLims,
+                l.CreatedAtUtc,
+                LocationCount = l.Locations.Count,
+                PrimaryStatus = l.Locations.Any()
+                    ? l.Locations.Max(loc => loc.Status).ToString()   // Max on enum = highest int value
+                    : "Draft"
+            }));
         });
 
         app.MapGet("/api/labs/{id:int}", async (int id, LabIqDbContext db) =>
@@ -44,6 +49,7 @@ public static class LabEndpoints
                 lab.PrimaryContact,
                 lab.AccreditationBody,
                 lab.AccreditationNumber,
+                lab.SourceLims,
                 lab.CreatedAtUtc,
                 Locations = lab.Locations.Select(loc => new
                 {

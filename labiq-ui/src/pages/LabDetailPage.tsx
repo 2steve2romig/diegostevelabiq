@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../api/client';
 import type { AuditRecord, DescriptionHistoryEntry, LabDetail, LabLocationSummary, TestCodeSummary, TransitionRequest } from '../api/types';
@@ -86,8 +86,8 @@ function CatalogTab({ labId, labs }: { labId: number; labs: any[] }) {
               <th>Test Code</th><th>Description</th><th>Matrix</th><th>Sample Size</th><th>Category</th><th>Analytes</th><th>Active</th>
             </tr></thead>
             <tbody>
-              {catalog.map(tc => (<>
-                <tr key={tc.testCodeId} onClick={() => toggle(tc.testCodeId)} style={{ cursor: 'pointer' }}>
+              {catalog.map(tc => (<Fragment key={tc.testCodeId}>
+                <tr onClick={() => toggle(tc.testCodeId)} style={{ cursor: 'pointer' }}>
                   <td style={{ textAlign: 'center', color: 'var(--st-text-soft)', fontSize: 11 }}>{expanded.has(tc.testCodeId) ? '▾' : '▸'}</td>
                   <td><span style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--st-grey-bg)', padding: '2px 6px', borderRadius: 3, fontWeight: 700 }}>{tc.code}</span></td>
                   <td>
@@ -104,7 +104,7 @@ function CatalogTab({ labId, labs }: { labId: number; labs: any[] }) {
                   <td>{tc.activeFlag ? <span className="badge" style={{ background: 'var(--st-success-bg)', color: 'var(--st-success)' }}>Active</span> : null}</td>
                 </tr>
                 {expanded.has(tc.testCodeId) && tc.parameters.map(p => (
-                  <tr key={p.parameterCodeId} style={{ background: 'var(--st-cyan-pale)' }}>
+                  <tr key={`param-${p.parameterCodeId}`} style={{ background: 'var(--st-cyan-pale)' }}>
                     <td></td>
                     <td style={{ paddingLeft: 28 }}><span style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--st-text-muted)' }}>{p.code}</span></td>
                     <td colSpan={5}>
@@ -116,7 +116,7 @@ function CatalogTab({ labId, labs }: { labId: number; labs: any[] }) {
                     <td></td>
                   </tr>
                 ))}
-              </>))}
+              </Fragment>))}
               {catalog.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', padding: 32, color: 'var(--st-text-muted)' }}>No catalog loaded.</td></tr>}
             </tbody>
           </table>
@@ -225,7 +225,7 @@ export function LabDetailPage() {
   const primaryStatus = allStatuses.includes('Live') ? 'Live' : allStatuses.includes('Suspended') ? 'Suspended' : allStatuses[0] ?? 'Draft';
 
   const TABS: { key: Tab; label: string }[] = [
-    { key: 'catalog',   label: `Catalog (${lab.locations.length})` },
+    { key: 'catalog',   label: 'Catalog' },
     { key: 'locations', label: 'Locations' },
     { key: 'audit',     label: 'Audit Log' },
   ];

@@ -119,7 +119,7 @@ export function LabsPage() {
                       </span>}
                     </div>
                   </td>
-                  <td style={{ color: 'var(--st-text-muted)', fontSize: 12 }}>{lab.primaryContact}</td>
+                  <td style={{ color: 'var(--st-text-muted)', fontSize: 12 }}>{lab.primaryAddress}</td>
                   <td style={{ color: 'var(--st-text-muted)', fontSize: 12 }}>{lab.primaryContact}</td>
                   <td style={{ textAlign: 'center' }}>
                     <span style={{ background: 'var(--st-cyan-light)', color: 'var(--st-cyan-dark)', padding: '2px 8px', borderRadius: 10, fontWeight: 600, fontSize: 11 }}>{lab.locationCount}</span>
