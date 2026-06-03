@@ -128,6 +128,24 @@ public static class LabEndpoints
             if (string.IsNullOrWhiteSpace(req.Reason))
                 return Results.BadRequest(new { error = "Reason is required for all lifecycle transitions" });
 
+            // Gate: TestTransactionsConfirmed requires at least one validated test order
+            if (target == LabLifecycleState.TestTransactionsConfirmed)
+            {
+                var hasValidated = await db.TestOrders
+                    .AnyAsync(o => o.LocationId == locationId && o.Mode == "Test" && o.Status == "Validated");
+                if (!hasValidated)
+                    return Results.BadRequest(new { error = "Cannot confirm test transactions: no validated round-trip test order found for this location. Generate and validate a test order first." });
+            }
+
+            // Gate: Live requires at least one configured active transport channel
+            if (target == LabLifecycleState.Live)
+            {
+                var hasChannel = await db.TransportChannels
+                    .AnyAsync(c => c.LocationId == locationId && c.IsActive);
+                if (!hasChannel)
+                    return Results.BadRequest(new { error = "Cannot go Live: no active integration channel configured for this location. Configure at least one transport channel first." });
+            }
+
             var before = location.Status.ToString();
             location.Status = target;
             await db.SaveChangesAsync();

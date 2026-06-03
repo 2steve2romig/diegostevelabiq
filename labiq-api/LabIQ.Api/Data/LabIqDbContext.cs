@@ -16,6 +16,10 @@ public class LabIqDbContext : DbContext
     public DbSet<TestParameterAssociation> TestParameterAssociations => Set<TestParameterAssociation>();
     public DbSet<LocationTestAvailability> LocationTestAvailabilities => Set<LocationTestAvailability>();
     public DbSet<AuditEvent> AuditEvents => Set<AuditEvent>();
+    public DbSet<TestOrder> TestOrders => Set<TestOrder>();
+    public DbSet<TestResult> TestResults => Set<TestResult>();
+    public DbSet<TransportChannel> TransportChannels => Set<TransportChannel>();
+    public DbSet<InboundFileAcknowledgment> InboundFileAcknowledgments => Set<InboundFileAcknowledgment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,5 +54,25 @@ public class LabIqDbContext : DbContext
         modelBuilder.Entity<AuditEvent>()
             .Property(e => e.EventId)
             .ValueGeneratedOnAdd();
+
+        // TestOrder: one-to-one with TestResult
+        modelBuilder.Entity<TestOrder>()
+            .HasOne(o => o.Result)
+            .WithOne(r => r.TestOrder)
+            .HasForeignKey<TestResult>(r => r.TestOrderId);
+
+        // TransportChannel: unique type per location
+        modelBuilder.Entity<TransportChannel>()
+            .HasIndex(c => new { c.LocationId, c.ChannelType }).IsUnique();
+
+        // Explicit PKs for entities whose PK name doesn't follow convention
+        modelBuilder.Entity<InboundFileAcknowledgment>()
+            .HasKey(a => a.AckId);
+        modelBuilder.Entity<TestResult>()
+            .HasKey(r => r.TestResultId);
+        modelBuilder.Entity<TransportChannel>()
+            .HasKey(c => c.ChannelId);
+        modelBuilder.Entity<TestOrder>()
+            .HasKey(o => o.TestOrderId);
     }
 }

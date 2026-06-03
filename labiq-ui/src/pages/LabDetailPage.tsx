@@ -1,14 +1,14 @@
 import { Fragment, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../api/client';
-import type { AuditRecord, DescriptionHistoryEntry, LabDetail, LabLocationSummary, TestCodeSummary, TransitionRequest } from '../api/types';
+import type { AuditRecord, DescriptionHistoryEntry, LabDetail, LabLocationSummary, TestCodeSummary, TestOrder, TransitionRequest, TransportChannel, UpsertChannelRequest } from '../api/types';
 import { Callout } from '../components/Callout';
 import { CatalogUploadWizard } from '../components/CatalogUploadWizard';
 import { LifecycleBadge } from '../components/LifecycleBadge';
 import { PageHeader } from '../components/PageHeader';
 import { useToast } from '../components/Toast';
 
-type Tab = 'catalog' | 'locations' | 'audit';
+type Tab = 'catalog' | 'locations' | 'transactions' | 'channels' | 'audit';
 
 const LIFECYCLE_NEXT: Record<string, string> = {
   Draft: 'CatalogLoaded', CatalogLoaded: 'MappingConfirmed',
@@ -207,6 +207,258 @@ function AuditTab({ labId }: { labId: number }) {
   );
 }
 
+function TransactionsTab({ labId, locationId, locationCode, locationStatus }: { labId: number; locationId: number; locationCode: string; locationStatus: string; onLifecycleChanged?: () => void }) {
+  const { toast } = useToast();
+  const [orders, setOrders] = useState<TestOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dispatching, setDispatching] = useState(false);
+  const [simulating, setSimulating] = useState<number | null>(null);
+
+  const load = () => { setLoading(true); api.testOrders.list(labId, locationId).then(setOrders).finally(() => setLoading(false)); };
+  useEffect(() => { load(); }, [locationId]);
+
+  const dispatch = async () => {
+    setDispatching(true);
+    try { await api.testOrders.dispatch(labId, locationId); toast('Test order dispatched', 'success'); load(); }
+    catch (e: unknown) { toast(e instanceof Error ? e.message : 'Error', 'danger'); }
+    finally { setDispatching(false); }
+  };
+
+  const simulate = async (orderId: number) => {
+    setSimulating(orderId);
+    try { const r = await api.testOrders.simulateResult(labId, locationId, orderId); toast(`Result ${r.status}: ${r.validationNotes}`, r.analyteCodesMatch ? 'success' : 'warning'); load(); }
+    catch (e: unknown) { toast(e instanceof Error ? e.message : 'Error', 'danger'); }
+    finally { setSimulating(null); }
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const validatedCount = orders.filter(o => o.status === 'Validated').length;
+  const canConfirm = validatedCount > 0 && locationStatus === 'MappingConfirmed';
+
+  const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
+    Dispatched:    { bg: '#E3F2FD', color: '#1565C0' },
+    Validated:     { bg: 'var(--st-success-bg)', color: 'var(--st-success)' },
+    Failed:        { bg: 'var(--st-danger-bg)',  color: 'var(--st-danger)' },
+    ResultReceived:{ bg: 'var(--st-warning-bg)', color: 'var(--st-warning)' },
+    NoResponse:    { bg: 'var(--st-grey-bg)',     color: 'var(--st-text-muted)' },
+  };
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Test Transactions — {locationCode}</div>
+          <div style={{ fontSize: 12, color: 'var(--st-text-muted)' }}>
+            Generate test orders and validate round-trip connectivity before going Live.
+            {validatedCount > 0 && <span style={{ color: 'var(--st-success)', marginLeft: 8, fontWeight: 600 }}>✓ {validatedCount} validated</span>}
+          </div>
+        </div>
+        <button className="btn-primary" onClick={dispatch} disabled={dispatching}>
+          {dispatching ? 'Dispatching…' : '▶ Generate Test Order'}
+        </button>
+      </div>
+
+      {orders.length === 0 && !loading && (
+        <Callout type="info" style={{ marginBottom: 16 }}>
+          No test orders yet. Click "Generate Test Order" to dispatch a test order over the configured integration channel.
+          The system will build the order from this location's current test offerings.
+        </Callout>
+      )}
+
+      {canConfirm && (
+        <Callout type="success" style={{ marginBottom: 16 }}>
+          <strong>{validatedCount} validated test transaction{validatedCount !== 1 ? 's' : ''}.</strong> You can now advance this location to Test Transactions Confirmed from the Locations tab.
+        </Callout>
+      )}
+
+      {loading ? <div style={{ padding: 32, textAlign: 'center', color: 'var(--st-text-muted)' }}>Loading…</div> : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {orders.map(order => {
+            const st = STATUS_STYLE[order.status] ?? STATUS_STYLE['Dispatched'];
+            return (
+              <div key={order.testOrderId} className="card" style={{ padding: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                  <div>
+                    <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 13 }}>{order.sureTrendOrderId}</span>
+                    <span className="badge" style={{ background: '#E8F4FD', color: '#0078A8', marginLeft: 8, fontSize: 10 }}>Test Mode</span>
+                  </div>
+                  <span className="badge" style={{ background: st.bg, color: st.color }}>{order.status}</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: 'var(--st-text-muted)', marginBottom: 10 }}>
+                  <div>Dispatched: <strong style={{ color: 'var(--st-text)' }}>{fmt(order.dispatchedAtUtc)}</strong></div>
+                  <div>By: <strong style={{ color: 'var(--st-text)' }}>{order.dispatchedBy ?? '—'}</strong></div>
+                </div>
+
+                {order.result ? (
+                  <div style={{ background: order.result.analyteCodesMatch ? 'var(--st-success-bg)' : 'var(--st-danger-bg)', borderRadius: 6, padding: '10px 14px', fontSize: 12 }}>
+                    <div style={{ fontWeight: 700, color: order.result.analyteCodesMatch ? 'var(--st-success)' : 'var(--st-danger)', marginBottom: 4 }}>
+                      {order.result.analyteCodesMatch ? '✓ Result validated' : '✗ Validation failed'}
+                    </div>
+                    <div style={{ color: 'var(--st-text)' }}>{order.result.validationNotes}</div>
+                    <div style={{ color: 'var(--st-text-muted)', marginTop: 4 }}>Received: {fmt(order.result.receivedAtUtc)}</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn-secondary" style={{ fontSize: 11, padding: '4px 12px' }}
+                      onClick={() => simulate(order.testOrderId)} disabled={simulating === order.testOrderId}>
+                      {simulating === order.testOrderId ? 'Simulating…' : '⟳ Simulate Result'}
+                    </button>
+                    <span style={{ fontSize: 11, color: 'var(--st-text-muted)', alignSelf: 'center' }}>
+                      Waiting for lab to return a result
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChannelsTab({ labId, locationId }: { labId: number; locationId: number }) {
+  const { toast } = useToast();
+  const [channels, setChannels] = useState<TransportChannel[]>([]);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [form, setForm] = useState<UpsertChannelRequest>({});
+  const [saving, setSaving] = useState(false);
+
+  const CHANNEL_TYPES = ['Sftp', 'RestApi', 'EncryptedEmail', 'SelfDescribingPdf'];
+  const CHANNEL_LABELS: Record<string, string> = { Sftp: 'SFTP', RestApi: 'REST API', EncryptedEmail: 'Encrypted Email', SelfDescribingPdf: 'Self-Describing PDF' };
+
+  useEffect(() => { api.channels.list(labId, locationId).then(setChannels); }, [locationId]);
+
+  const startEdit = (type: string) => {
+    const existing = channels.find(c => c.channelType === type);
+    setForm(existing ? {
+      hostingMode: existing.hostingMode ?? '', host: existing.host ?? '', port: existing.port ?? undefined,
+      inboxPath: existing.inboxPath ?? '', outboxPath: existing.outboxPath ?? '',
+      endpointUrl: existing.endpointUrl ?? '', authType: existing.authType ?? '',
+      encryptionType: existing.encryptionType ?? '', recipientAddress: existing.recipientAddress ?? '',
+      fileNamingTemplate: existing.fileNamingTemplate ?? '', isActive: existing.isActive,
+    } : { isActive: true });
+    setEditing(type);
+  };
+
+  const save = async () => {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      await api.channels.upsert(labId, locationId, editing, { ...form, reason: `${editing} channel configured` });
+      toast(`${CHANNEL_LABELS[editing]} configured`, 'success');
+      const updated = await api.channels.list(labId, locationId);
+      setChannels(updated);
+      setEditing(null);
+    } catch (e: unknown) { toast(e instanceof Error ? e.message : 'Error', 'danger'); }
+    finally { setSaving(false); }
+  };
+
+  const set = (k: keyof UpsertChannelRequest, v: string | number | boolean) => setForm(f => ({ ...f, [k]: v }));
+  const existing = (type: string) => channels.find(c => c.channelType === type);
+
+  return (
+    <div>
+      <Callout type="info" style={{ marginBottom: 16 }}>
+        At least one active channel is required before a location can go Live.
+        Configure the channel type that matches your lab's integration capability.
+      </Callout>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {CHANNEL_TYPES.map(type => {
+          const ch = existing(type);
+          return (
+            <div key={type} className="card" style={{ padding: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontWeight: 700 }}>{CHANNEL_LABELS[type]}</span>
+                {ch ? (
+                  <span className="badge" style={{ background: ch.isActive ? 'var(--st-success-bg)' : 'var(--st-grey-bg)', color: ch.isActive ? 'var(--st-success)' : 'var(--st-text-muted)' }}>
+                    {ch.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                ) : <span className="badge" style={{ background: 'var(--st-grey-bg)', color: 'var(--st-text-muted)' }}>Not configured</span>}
+              </div>
+              {ch && (
+                <div style={{ fontSize: 11, color: 'var(--st-text-muted)', marginBottom: 10 }}>
+                  {type === 'Sftp' && ch.host && <div>Host: <strong>{ch.host}</strong>{ch.port ? `:${ch.port}` : ''} · {ch.hostingMode}</div>}
+                  {type === 'RestApi' && ch.endpointUrl && <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Endpoint: <strong>{ch.endpointUrl}</strong></div>}
+                  {type === 'EncryptedEmail' && ch.recipientAddress && <div>To: <strong>{ch.recipientAddress}</strong> · {ch.encryptionType}</div>}
+                  {ch.fileNamingTemplate && <div>Naming: <code style={{ fontSize: 10 }}>{ch.fileNamingTemplate}</code></div>}
+                </div>
+              )}
+              <button className="btn-secondary" style={{ fontSize: 11, padding: '4px 10px', width: '100%' }} onClick={() => startEdit(type)}>
+                {ch ? 'Edit' : 'Configure'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {editing && (
+        <div className="modal-overlay" onClick={() => setEditing(null)}>
+          <div className="modal" style={{ width: 520 }} onClick={e => e.stopPropagation()}>
+            <div className="modal-title">Configure {CHANNEL_LABELS[editing]}</div>
+
+            {editing === 'Sftp' && (<>
+              <div className="form-group"><label>Hosting Mode</label>
+                <select value={form.hostingMode ?? ''} onChange={e => set('hostingMode', e.target.value)}>
+                  <option value="">Select…</option>
+                  <option value="SureTrendHosted">SureTrend-hosted SFTP</option>
+                  <option value="LabHosted">Lab-hosted SFTP</option>
+                </select>
+              </div>
+              {form.hostingMode === 'LabHosted' && (<>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+                  <div className="form-group"><label>Host</label><input placeholder="sftp.lab.example.com" value={form.host ?? ''} onChange={e => set('host', e.target.value)} /></div>
+                  <div className="form-group"><label>Port</label><input type="number" placeholder="22" value={form.port ?? ''} onChange={e => set('port', +e.target.value)} /></div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  <div className="form-group"><label>Inbox Path</label><input placeholder="/SureTrend/orders" value={form.inboxPath ?? ''} onChange={e => set('inboxPath', e.target.value)} /></div>
+                  <div className="form-group"><label>Outbox Path</label><input placeholder="/SureTrend/results" value={form.outboxPath ?? ''} onChange={e => set('outboxPath', e.target.value)} /></div>
+                  <div className="form-group"><label>Archive Path</label><input placeholder="/SureTrend/archive" value={form.archivePath ?? ''} onChange={e => set('archivePath', e.target.value)} /></div>
+                </div>
+                <div className="form-group"><label>Public Key Fingerprint</label><input placeholder="SHA256:xK9m…" value={form.publicKeyFingerprint ?? ''} onChange={e => set('publicKeyFingerprint', e.target.value)} /></div>
+              </>)}
+            </>)}
+
+            {editing === 'RestApi' && (<>
+              <div className="form-group"><label>Endpoint URL</label><input placeholder="https://api.lab.example.com/orders" value={form.endpointUrl ?? ''} onChange={e => set('endpointUrl', e.target.value)} /></div>
+              <div className="form-group"><label>Auth Type</label>
+                <select value={form.authType ?? ''} onChange={e => set('authType', e.target.value)}>
+                  <option value="">Select…</option>
+                  <option value="OAuth2">OAuth 2.0</option>
+                  <option value="mTLS">Mutual TLS</option>
+                  <option value="ApiKey">API Key</option>
+                </select>
+              </div>
+            </>)}
+
+            {editing === 'EncryptedEmail' && (<>
+              <div className="form-group"><label>Recipient Address</label><input placeholder="results@lab.example.com" value={form.recipientAddress ?? ''} onChange={e => set('recipientAddress', e.target.value)} /></div>
+              <div className="form-group"><label>Encryption Type</label>
+                <select value={form.encryptionType ?? ''} onChange={e => set('encryptionType', e.target.value)}>
+                  <option value="">Select…</option>
+                  <option value="SMIME">S/MIME</option>
+                  <option value="PGP">OpenPGP</option>
+                </select>
+              </div>
+            </>)}
+
+            <div className="form-group">
+              <label>File Naming Template <span style={{ fontSize: 10, color: 'var(--st-text-soft)' }}>(optional override)</span></label>
+              <input placeholder="YYYYMMDD_CustomerCode_LabCode_Random.ext" value={form.fileNamingTemplate ?? ''} onChange={e => set('fileNamingTemplate', e.target.value)} />
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
+              <button className="btn-primary" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save Channel'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function LabDetailPage() {
   const { id } = useParams<{ id: string }>();
   const labId = Number(id);
@@ -225,9 +477,11 @@ export function LabDetailPage() {
   const primaryStatus = allStatuses.includes('Live') ? 'Live' : allStatuses.includes('Suspended') ? 'Suspended' : allStatuses[0] ?? 'Draft';
 
   const TABS: { key: Tab; label: string }[] = [
-    { key: 'catalog',   label: 'Catalog' },
-    { key: 'locations', label: 'Locations' },
-    { key: 'audit',     label: 'Audit Log' },
+    { key: 'catalog',      label: 'Catalog' },
+    { key: 'locations',    label: 'Locations' },
+    { key: 'transactions', label: 'Test Transactions' },
+    { key: 'channels',     label: 'Integration Channels' },
+    { key: 'audit',        label: 'Audit Log' },
   ];
 
   return (
@@ -249,8 +503,18 @@ export function LabDetailPage() {
         ))}
       </div>
 
-      {tab === 'catalog'   && <CatalogTab labId={labId} labs={labs} />}
-      {tab === 'locations' && <LocationsTab lab={lab} onRefresh={load} />}
+      {tab === 'catalog'      && <CatalogTab labId={labId} labs={labs} />}
+      {tab === 'locations'   && <LocationsTab lab={lab} onRefresh={load} />}
+      {tab === 'transactions' && (
+        <TransactionsTab
+          labId={labId}
+          locationId={lab.locations[0]?.locationId ?? 0}
+          locationCode={lab.locations[0]?.labLocationCode ?? ''}
+          locationStatus={lab.locations[0]?.status ?? 'Draft'}
+          onLifecycleChanged={load}
+        />
+      )}
+      {tab === 'channels'  && <ChannelsTab labId={labId} locationId={lab.locations[0]?.locationId ?? 0} />}
       {tab === 'audit'     && <AuditTab labId={labId} />}
     </div>
   );

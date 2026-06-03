@@ -67,3 +67,60 @@ export interface OfferingRow {
   testCodeId: number; code: string; currentDescription: string; activeFlag: boolean;
   offered: boolean; matrix?: string; sampleSize?: string; testCategory?: string;
 }
+
+export interface TestOrder {
+  testOrderId: number;
+  sureTrendOrderId: string;
+  mode: string;
+  status: string;
+  dispatchedAtUtc: string;
+  dispatchedBy: string | null;
+  payloadJson: string | null;
+  result: TestResult | null;
+}
+
+export interface TestResult {
+  testResultId: number;
+  labSampleCode: string | null;
+  receivedAtUtc: string;
+  boundAtUtc: string | null;
+  status: string;
+  analyteCodesMatch: boolean;
+  validationNotes: string | null;
+}
+
+export interface TransportChannel {
+  channelId: number;
+  channelType: string;
+  isActive: boolean;
+  createdAtUtc: string;
+  hostingMode: string | null;
+  host: string | null;
+  port: number | null;
+  inboxPath: string | null;
+  outboxPath: string | null;
+  archivePath: string | null;
+  publicKeyFingerprint: string | null;
+  endpointUrl: string | null;
+  authType: string | null;
+  encryptionType: string | null;
+  recipientAddress: string | null;
+  fileNamingTemplate: string | null;
+}
+
+export interface UpsertChannelRequest {
+  isActive?: boolean;
+  hostingMode?: string;
+  host?: string;
+  port?: number;
+  inboxPath?: string;
+  outboxPath?: string;
+  archivePath?: string;
+  publicKeyFingerprint?: string;
+  endpointUrl?: string;
+  authType?: string;
+  encryptionType?: string;
+  recipientAddress?: string;
+  fileNamingTemplate?: string;
+  reason?: string;
+}

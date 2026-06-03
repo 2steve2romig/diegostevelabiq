@@ -87,6 +87,26 @@ export const api = {
     remove: (labId: number, locationId: number, testCodeId: number) =>
       request<void>(`/api/labs/${labId}/locations/${locationId}/offerings/${testCodeId}`, { method: 'DELETE' }),
   },
+  testOrders: {
+    list: (labId: number, locationId: number) =>
+      request<import('./types').TestOrder[]>(`/api/labs/${labId}/locations/${locationId}/test-orders`),
+    dispatch: (labId: number, locationId: number) =>
+      request<{ testOrderId: number; sureTrendOrderId: string; status: string; payloadJson: string }>(
+        `/api/labs/${labId}/locations/${locationId}/test-orders`, { method: 'POST' }),
+    simulateResult: (labId: number, locationId: number, orderId: number) =>
+      request<{ testResultId: number; status: string; analyteCodesMatch: boolean; validationNotes: string }>(
+        `/api/labs/${labId}/locations/${locationId}/test-orders/${orderId}/simulate-result`, { method: 'POST' }),
+  },
+  channels: {
+    list: (labId: number, locationId: number) =>
+      request<import('./types').TransportChannel[]>(`/api/labs/${labId}/locations/${locationId}/channels`),
+    upsert: (labId: number, locationId: number, type: string, body: import('./types').UpsertChannelRequest) =>
+      request<{ channelId: number; channelType: string; isActive: boolean }>(
+        `/api/labs/${labId}/locations/${locationId}/channels/${type}`,
+        { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    deactivate: (labId: number, locationId: number, type: string) =>
+      request<void>(`/api/labs/${labId}/locations/${locationId}/channels/${type}`, { method: 'DELETE' }),
+  },
   audit: {
     list: (params?: { eventType?: string; search?: string; labId?: number; limit?: number }) => {
       const p = new URLSearchParams();

@@ -53,5 +53,7 @@ app.MapMasterTestsEndpoints();
 app.MapMasterAnalytesEndpoints();
 app.MapOfferingsEndpoints();
 app.MapAuditTrailEndpoints();
+app.MapTestOrderEndpoints();
+app.MapTransportChannelEndpoints();
 
 app.Run();
