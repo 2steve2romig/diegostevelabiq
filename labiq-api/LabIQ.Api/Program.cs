@@ -33,9 +33,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LabIqDbContext>();
-    // Drop and recreate to pick up schema changes (prototype only — use migrations in production)
-    db.Database.EnsureDeleted();
-    db.Database.EnsureCreated();
+    // Apply any pending migrations (creates the DB if it doesn't exist yet)
+    db.Database.Migrate();
     SeedData.Initialize(db);
 }
 

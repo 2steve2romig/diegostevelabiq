@@ -91,12 +91,15 @@ npm install
 npm run dev
 ```
 
-API runs on http://localhost:5000 (`dotnet run --no-launch-profile`), UI on http://localhost:5173 (proxy configured in vite.config.ts).
+API runs on http://localhost:8080 (`dotnet run --no-launch-profile`), UI on http://localhost:5173 (proxy configured in vite.config.ts).
 
 ## Conventions
 
 - Minimal API: one file per feature area in `Endpoints/`
 - EF migrations: always use `dotnet ef migrations add <Name>` — never edit migrations manually
+- Schema changes: add/modify entities → `dotnet ef migrations add <DescriptiveName>` → commit the Migrations/ folder
+- Startup: `db.Database.Migrate()` applies all pending migrations and creates the DB if missing — never use EnsureDeleted/EnsureCreated
 - Audit events: every write endpoint must append an AuditEvent before returning 200
 - No shared accounts: every API call must carry a user identity header (prototype uses a simple X-User-Id header; production will use JWT)
 - Code fields (`lab_code`, `test_code`, `parameter_code`) are immutable once persisted — reject edits with 400
+- Soft delete only: never DELETE TestCode or ParameterCode rows — set ActiveFlag = false instead
