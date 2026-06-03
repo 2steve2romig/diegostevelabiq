@@ -1,7 +1,10 @@
 ============================================================
-LAB IQ — USER STORIES v2.0
+LAB IQ — USER STORIES v2.1
 Consolidated from SRS v0.1, prototype implementation, and
 original user stories provided 2026-06-03
+Updated 2026-06-03: Stories 1.5, 1.7, 1.8 revised to support
+canonical mapping entity, test order/result validation flow,
+and inbound acknowledgment receipts
 ============================================================
 
 
@@ -243,9 +246,12 @@ Owner, Global Admin, or Admin can upload a catalog file in CSV or
 The import shall follow a guided multi-step workflow:
   Step 1 — Choose File: drag-and-drop or file browse, accepts CSV/XLSX.
   Step 2 — Map Columns: system auto-detects canonical field mappings
-    from column headers; user can override any mapping using a dropdown.
-    A preview of the first 10 data rows shall be displayed.
-    Required fields (Test Code, Test Description) shall be clearly marked.
+    from column headers using pattern matching; user can override any
+    mapping using a dropdown. A preview of the first 10 data rows shall
+    be displayed. Required fields (Test Code, Test Description) shall be
+    clearly marked. Mapping suggestions may be augmented by AI-assisted
+    recommendations in future versions. Human review and override of all
+    mappings is always available before commit.
   Step 3 — Select Lab: user selects which laboratory receives the catalog.
   Step 4 — Confirm & Commit: summary of records to be created or updated,
     plain-language description of what will happen, Commit button.
@@ -393,6 +399,22 @@ The SureTrend Admin shall explicitly Approve or Reject the mapping.
   in the audit history.
 Round-trip test transactions shall be tracked separately from
   production transactions and excluded from production reporting.
+The system shall generate a test order in the canonical format and
+  dispatch it over the configured integration channel on demand.
+The system shall monitor for an inbound result for each test order.
+The inbound result shall be correlated back to the originating order
+  by SureTrend Order ID, lab sample code, or client sample code,
+  in that priority order.
+The system shall validate that the returned analyte codes and result
+  format match what was ordered and conform to the canonical mapping.
+Test orders and results shall be clearly tagged as Test Mode and
+  shall not appear in production reporting or Sample Plan history.
+The SureTrend Admin shall review the matched test order and result
+  before confirming Test Transactions.
+If no result is received within a configurable window, the system
+  shall alert the SureTrend Admin and log a missed-response event.
+The system shall prevent advancement to Test Transactions Confirmed
+  unless at least one successful round-trip test transaction is recorded.
 The SureTrend Admin shall explicitly confirm that test transactions
   are correct before the location can advance to Live.
 A Live location shall appear as selectable in SureTrend Sample Plans.
@@ -405,7 +427,11 @@ The following actions shall be recorded:
 Lifecycle Transition (with from-state, to-state, and justification)
 Mapping Approved (with electronic signature meaning)
 Mapping Rejected (with rejection comment)
+Test Order Dispatched
+Test Result Received
+Test Result Correlated to Order
 Test Transactions Confirmed
+Missed Test Response (no result received within configured window)
 Location Suspended
 Location Reinstated
 
@@ -448,9 +474,18 @@ For Encrypted Email channels: the lab's S/MIME certificate or PGP
   the channel shall be rejected.
 A configurable file naming convention shall be supported per location
   with a default of: YYYYMMDD_CustomerCode_LabCode_Random.ext
-Every inbound file or message received shall produce an acknowledgment
-  record capturing: original file name, received timestamp (UTC),
-  received-by identity, file size in bytes, and SHA-256 checksum.
+Every inbound file or message received over any channel shall produce
+  an acknowledgment record capturing: original file name, received
+  timestamp (UTC), received-by identity, file size in bytes, and
+  SHA-256 checksum. This record is immutable and cannot be deleted.
+If SureTrend hosts the SFTP endpoint, the system shall maintain a
+  logical folder hierarchy per lab location (inbox, outbox, archive,
+  receipts), monitor for uptime, and provide retry and dead-letter
+  queue logic for failed transfers.
+If the lab hosts the SFTP endpoint, the host URL, port, folder
+  paths, and credentials reference shall be fully configurable per
+  location. The system shall record metadata about each file drop
+  and pickup to satisfy 21 CFR Part 11 audit requirements.
 Channel configuration changes shall require SureTrend Admin co-approval.
 
 PHYSICAL SAMPLE TRANSPORT
@@ -481,6 +516,9 @@ Integration Channel Deactivated
 Credential Issued
 Credential Rotated
 Credential Revoked
+Inbound File Acknowledged (with file name, size, checksum, timestamp)
+File Transfer Failed
+Dead-Letter Queue Entry Created
 Sample Transport Created
 Sample Transport Updated
 Sample Transport Activated
@@ -547,6 +585,17 @@ defined in Stories 1.1 through 1.8.
 
 
 ============================================================
-END OF USER STORIES v2.0
+END OF USER STORIES v2.1
 Total: 9 stories (1.1 through 1.9)
+
+Change log:
+  v2.0 — Initial consolidated version
+  v2.1 — Story 1.5: added AI-assisted mapping note (Step 2)
+          Story 1.7: added 8 acceptance criteria for test order
+            generation, result receipt, correlation, validation,
+            missed-response alert, and transaction prerequisite gate;
+            added 5 new audit events
+          Story 1.8: added immutability statement on acknowledgment
+            records; added SureTrend-hosted vs lab-hosted SFTP
+            infrastructure requirements; added 3 new audit events
 ============================================================
