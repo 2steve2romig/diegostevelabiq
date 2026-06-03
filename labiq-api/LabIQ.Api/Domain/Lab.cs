@@ -9,6 +9,7 @@ public class Lab
     public string PrimaryContact { get; set; } = null!;
     public string? AccreditationBody { get; set; }
     public string? AccreditationNumber { get; set; }
+    public string? SourceLims { get; set; }
     public DateTime CreatedAtUtc { get; set; }
 
     public ICollection<LabLocation> Locations { get; set; } = new List<LabLocation>();

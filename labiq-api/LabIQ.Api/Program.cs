@@ -33,6 +33,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LabIqDbContext>();
+    // Drop and recreate to pick up schema changes (prototype only — use migrations in production)
+    db.Database.EnsureDeleted();
     db.Database.EnsureCreated();
     SeedData.Initialize(db);
 }
@@ -51,5 +53,6 @@ app.MapDashboardEndpoints();
 app.MapMasterTestsEndpoints();
 app.MapMasterAnalytesEndpoints();
 app.MapOfferingsEndpoints();
+app.MapAuditTrailEndpoints();
 
 app.Run();

@@ -7,6 +7,9 @@ public class TestCode
     public Lab Lab { get; set; } = null!;
     public string Code { get; set; } = null!;
     public bool ActiveFlag { get; set; } = true;
+    public string? Matrix { get; set; }
+    public string? SampleSize { get; set; }
+    public string? TestCategory { get; set; }
     public DateTime CreatedAtUtc { get; set; }
 
     public ICollection<TestDescription> Descriptions { get; set; } = new List<TestDescription>();

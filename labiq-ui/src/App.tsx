@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { ToastProvider } from './components/Toast';
+import { AuditTrailPage } from './pages/AuditTrailPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LabDetailPage } from './pages/LabDetailPage';
 import { LabOfferingsPage } from './pages/LabOfferingsPage';
@@ -24,6 +25,7 @@ function App() {
             <Route path="/analytes" element={<MasterAnalytesPage />} />
             <Route path="/offerings" element={<LabOfferingsPage />} />
             <Route path="/transports" element={<TransportsPage />} />
+            <Route path="/audit" element={<AuditTrailPage />} />
           </Routes>
         </main>
       </div>

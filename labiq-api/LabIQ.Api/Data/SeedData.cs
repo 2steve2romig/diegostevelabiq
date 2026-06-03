@@ -10,7 +10,6 @@ public static class SeedData
 
         var now = DateTime.UtcNow;
 
-        // ── Labs ────────────────────────────────────────────────────────────
         var fsns = new Lab
         {
             LabCompanyCode = "FSNS",
@@ -19,6 +18,7 @@ public static class SeedData
             PrimaryContact = "lab-ops@fsns.com",
             AccreditationBody = "A2LA",
             AccreditationNumber = "2501.01",
+            SourceLims = "LabWare LIMS 7",
             CreatedAtUtc = now,
             Locations = new List<LabLocation>
             {
@@ -39,14 +39,15 @@ public static class SeedData
             PrimaryContact = "integration@eurofins.com",
             AccreditationBody = "A2LA",
             AccreditationNumber = "1983.01",
+            SourceLims = "Eurofins eLIMS",
             CreatedAtUtc = now,
             Locations = new List<LabLocation>
             {
-                new() { LabLocationCode = "EF-MAD", Address = "Madison, WI 53718",      TimeZone = "America/Chicago",
+                new() { LabLocationCode = "EF-MAD", Address = "Madison, WI 53718",     TimeZone = "America/Chicago",
                         AvailableFrom = new DateTime(2026,1,1,0,0,0,DateTimeKind.Utc), Status = LabLifecycleState.Live, CreatedAtUtc = now },
-                new() { LabLocationCode = "EF-DSM", Address = "Des Moines, IA 50321",   TimeZone = "America/Chicago",
+                new() { LabLocationCode = "EF-DSM", Address = "Des Moines, IA 50321",  TimeZone = "America/Chicago",
                         AvailableFrom = new DateTime(2026,1,1,0,0,0,DateTimeKind.Utc), Status = LabLifecycleState.Live, CreatedAtUtc = now },
-                new() { LabLocationCode = "EF-NBL", Address = "New Berlin, WI 53151",   TimeZone = "America/Chicago",
+                new() { LabLocationCode = "EF-NBL", Address = "New Berlin, WI 53151",  TimeZone = "America/Chicago",
                         AvailableFrom = new DateTime(2026,3,1,0,0,0,DateTimeKind.Utc), Status = LabLifecycleState.TestTransactionsConfirmed, CreatedAtUtc = now },
             }
         };
@@ -59,6 +60,7 @@ public static class SeedData
             PrimaryContact = "lims@certifiedlabs.com",
             AccreditationBody = "AIHA-LAP",
             AccreditationNumber = "101385",
+            SourceLims = "STARLIMS v12",
             CreatedAtUtc = now,
             Locations = new List<LabLocation>
             {
@@ -70,7 +72,7 @@ public static class SeedData
         db.Labs.AddRange(fsns, eurofins, certified);
         db.SaveChanges();
 
-        // ── Parameter codes (analytes) — shared across FSNS tests ───────────
+        // ── Parameter codes ──────────────────────────────────────────────────
         var analytes = new[]
         {
             ("P001","Listeria monocytogenes","AOAC RI 070902","Detected / Not detected per 25 g","Qualitative"),
@@ -105,27 +107,29 @@ public static class SeedData
         // ── Test codes ───────────────────────────────────────────────────────
         var tests = new[]
         {
-            ("QM103","Listeria monocytogenes detection",          new[]{"P001","P002"}),
-            ("QM104","Listeria monocytogenes quantification",     new[]{"P001"}),
-            ("QM117","Salmonella spp. detection",                 new[]{"P003","P004"}),
-            ("QM118","Salmonella environmental swab",             new[]{"P003"}),
-            ("QM201","Aerobic plate count",                       new[]{"P005"}),
-            ("QM301","E. coli O157:H7",                          new[]{"P006"}),
-            ("QM302","Enterobacteriaceae enumeration",            new[]{"P007"}),
-            ("QM401","Yeast and mold combined enumeration",       new[]{"P008","P009"}),
-            ("QM501","Total coliforms enumeration",               new[]{"P010","P011"}),
-            ("QM502","Total coliforms detection",                 new[]{"P010"}),
-            ("QM601","Lactic acid bacteria enumeration",          new[]{"P012"}),
-            ("QM999","Quick screen coliforms only",               Array.Empty<string>()),
-            ("QC089","Cronobacter sakazakii powdered formula",    new[]{"P013"}),
+            ("QM103","Listeria monocytogenes detection",          "RTE food",           "25 g",   "Pathogen detection",   new[]{"P001","P002"}),
+            ("QM104","Listeria monocytogenes quantification",     "RTE food",           "25 g",   "Pathogen detection",   new[]{"P001"}),
+            ("QM117","Salmonella spp. detection",                 "Raw poultry",        "25 g",   "Pathogen detection",   new[]{"P003","P004"}),
+            ("QM118","Salmonella environmental swab",             "Environmental",      "1 swab", "Pathogen detection",   new[]{"P003"}),
+            ("QM201","Aerobic plate count",                       "Finished product",   "10 g",   "Indicator organisms",  new[]{"P005"}),
+            ("QM301","E. coli O157:H7",                          "Raw beef",           "25 g",   "Pathogen detection",   new[]{"P006"}),
+            ("QM302","Enterobacteriaceae enumeration",            "Finished product",   "10 g",   "Indicator organisms",  new[]{"P007"}),
+            ("QM401","Yeast and mold combined enumeration",       "Bakery ingredient",  "10 g",   "Enumeration",          new[]{"P008","P009"}),
+            ("QM501","Total coliforms enumeration",               "Finished product",   "10 g",   "Indicator organisms",  new[]{"P010","P011"}),
+            ("QM502","Total coliforms detection",                 "Finished product",   "10 g",   "Indicator organisms",  new[]{"P010"}),
+            ("QM601","Lactic acid bacteria enumeration",          "Dairy product",      "10 g",   "Enumeration",          new[]{"P012"}),
+            ("QM999","Quick screen coliforms only",               "Finished product",   "1 swab", "Indicator organisms",  Array.Empty<string>()),
+            ("QC089","Cronobacter sakazakii powdered formula",    "Powdered formula",   "25 g",   "Pathogen detection",   new[]{"P013"}),
         };
 
         var testMap = new Dictionary<string, TestCode>();
-        foreach (var (code, desc, paramCodes) in tests)
+        foreach (var (code, desc, matrix, sampleSize, category, paramCodes) in tests)
         {
             var tc = new TestCode
             {
-                LabId = fsns.LabId, Code = code, ActiveFlag = true, CreatedAtUtc = now,
+                LabId = fsns.LabId, Code = code, ActiveFlag = true,
+                Matrix = matrix, SampleSize = sampleSize, TestCategory = category,
+                CreatedAtUtc = now,
                 Descriptions = new List<TestDescription> { new() { Description = desc, EffectiveStart = now, IsCurrent = true } }
             };
             db.TestCodes.Add(tc);
@@ -145,26 +149,30 @@ public static class SeedData
 
         foreach (var code in new[] { "QM103","QM117","QM201","QM301","QM302","QM401","QM501","QM601" })
             db.LocationTestAvailabilities.Add(new LocationTestAvailability { LocationId = blm.LocationId, TestCodeId = testMap[code].TestCodeId });
-
         foreach (var code in new[] { "QM103","QM104","QM117","QM118","QM201","QM401","QM999","QC089" })
             db.LocationTestAvailabilities.Add(new LocationTestAvailability { LocationId = mdv.LocationId, TestCodeId = testMap[code].TestCodeId });
-
         foreach (var code in new[] { "QM103","QM117","QM201","QM401","QM601","QC089" })
             db.LocationTestAvailabilities.Add(new LocationTestAvailability { LocationId = vis.LocationId, TestCodeId = testMap[code].TestCodeId });
-
         db.SaveChanges();
 
         // ── Audit events ──────────────────────────────────────────────────────
         foreach (var lab in new[] { fsns, eurofins, certified })
-            db.AuditEvents.Add(new AuditEvent { EventType = "LAB_CREATED", TimestampUtc = now, ActorId = "system-seed",
-                ActorRole = "SureTrendAdmin", LabId = lab.LabId, ObjectType = "Lab", ObjectId = lab.LabId.ToString(), Reason = "Initial seed data" });
+            db.AuditEvents.Add(new AuditEvent { EventType = "LAB_CREATED", TimestampUtc = now.AddHours(-2), ActorId = "system-seed",
+                ActorRole = "SureTrendAdmin", LabId = lab.LabId, ObjectType = "Lab", ObjectId = lab.LabId.ToString(), Reason = "Initial onboarding" });
 
-        db.AuditEvents.Add(new AuditEvent { EventType = "CATALOG_UPLOADED", TimestampUtc = now.AddMinutes(-30), ActorId = "system-seed",
-            ActorRole = "SureTrendAdmin", LabId = fsns.LabId, ObjectType = "TestCatalog", Reason = "Bulk upload: 13 tests, 13 params" });
+        db.AuditEvents.Add(new AuditEvent { EventType = "CATALOG_UPLOADED", TimestampUtc = now.AddMinutes(-90), ActorId = "system-seed",
+            ActorRole = "SureTrendAdmin", LabId = fsns.LabId, ObjectType = "TestCatalog",
+            AfterStateHash = "13 tests, 13 analytes", Reason = "Initial catalog load via CSV" });
 
-        db.AuditEvents.Add(new AuditEvent { EventType = "LIFECYCLE_TRANSITION", TimestampUtc = now.AddMinutes(-10), ActorId = "system-seed",
-            ActorRole = "SureTrendAdmin", LabId = fsns.LabId, LocationId = vis.LocationId, ObjectType = "LabLocation",
-            ObjectId = vis.LocationId.ToString(), BeforeStateHash = "TestTransactionsConfirmed", AfterStateHash = "Live", Reason = "Validated all test transactions" });
+        db.AuditEvents.Add(new AuditEvent { EventType = "LIFECYCLE_TRANSITION", TimestampUtc = now.AddMinutes(-30), ActorId = "system-seed",
+            ActorRole = "SureTrendAdmin", LabId = fsns.LabId, LocationId = vis.LocationId,
+            ObjectType = "LabLocation", ObjectId = vis.LocationId.ToString(),
+            BeforeStateHash = "TestTransactionsConfirmed", AfterStateHash = "Live", Reason = "All test transactions validated" });
+
+        db.AuditEvents.Add(new AuditEvent { EventType = "LIFECYCLE_TRANSITION", TimestampUtc = now.AddMinutes(-60), ActorId = "system-seed",
+            ActorRole = "SureTrendAdmin", LabId = eurofins.LabId,
+            ObjectType = "LabLocation", BeforeStateHash = "MappingConfirmed", AfterStateHash = "TestTransactionsConfirmed",
+            Reason = "Test transaction round-trip completed" });
 
         db.SaveChanges();
     }
