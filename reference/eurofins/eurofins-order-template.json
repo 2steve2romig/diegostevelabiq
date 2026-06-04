@@ -1,0 +1,145 @@
+{
+    "TransformVersion": "1.0",
+    "EurofinsPartnerCode": "Eurofins",
+    "ClientCode": "",
+    "ClientOrderCode": "",
+    "TransportedBy": "",
+    "ClientPurchaseOrderReference": "",
+    "ClientPurchaseOrderDate": "",
+    "Batch": {
+        "Samples": [
+            {
+                "SamplePartnerReference": "",
+                "ClientSampleCode": "",
+                "SampleDescription": "",
+                "Comment": "",
+                "PriorityLevel": "",                
+                "Analyses": [
+                    {
+                        "AnalysisCode": "",
+                        "PackageCode": null,
+                        "FractionCode": "",
+                        "LimitCode": null,
+                        "QuotationSubGroupCode": null,
+                        "PriorityLevel": "",
+                        "Parameters": [
+                            {
+                                "ParameterCode": "",
+                                "AnalysisCode": "",
+                                "EstimatedValue": null,
+                                "EstimatedUnit": null,
+                                "LimitMax": null,
+                                "LimitMin": null,
+                                "LimitUnit": null
+                            }
+                        ]
+                    },
+                    {
+                        "AnalysisCode": "",
+                        "PackageCode": null,
+                        "FractionCode": "",
+                        "LimitCode": null,
+                        "QuotationSubGroupCode": null,
+                        "PriorityLevel": "",
+                        "Parameters": [
+                            {
+                                "ParameterCode": "",
+                                "AnalysisCode": "",
+                                "EstimatedValue": null,
+                                "EstimatedUnit": null,
+                                "LimitMax": null,
+                                "LimitMin": null,
+                                "LimitUnit": null
+                            },
+                            {
+                                "ParameterCode": "",
+                                "AnalysisCode": "",
+                                "EstimatedValue": null,
+                                "EstimatedUnit": null,
+                                "LimitMax": null,
+                                "LimitMin": null,
+                                "LimitUnit": null
+                            }
+                        ]
+                    }
+                ],
+                "AdditionalFields": [
+                    {
+                        "AdditionalFieldCode": "",
+                        "TextValue": ""
+                    },
+                    {
+                        "AdditionalFieldCode": "",
+                        "TextValue": ""
+                    }
+                ]
+            },
+            {
+                "SamplePartnerReference": "",
+                "ClientSampleCode": "",
+                "SampleDescription": "",
+                "Comment": "",
+                "PriorityLevel": "",                
+                "Analyses": [
+                    {
+                        "AnalysisCode": "",
+                        "PackageCode": null,
+                        "FractionCode": "",
+                        "LimitCode": null,
+                        "QuotationSubGroupCode": null,
+                        "PriorityLevel": "",
+                        "Parameters": [
+                            {
+                                "ParameterCode": "",
+                                "AnalysisCode": "",
+                                "EstimatedValue": null,
+                                "EstimatedUnit": null,
+                                "LimitMax": null,
+                                "LimitMin": null,
+                                "LimitUnit": null
+                            }
+                        ]
+                    },
+                    {
+                        "AnalysisCode": "",
+                        "PackageCode": null,
+                        "FractionCode": "",
+                        "LimitCode": null,
+                        "QuotationSubGroupCode": null,
+                        "PriorityLevel": "",
+                        "Parameters": [
+                            {
+                                "ParameterCode": "",
+                                "AnalysisCode": "",
+                                "EstimatedValue": null,
+                                "EstimatedUnit": null,
+                                "LimitMax": null,
+                                "LimitMin": null,
+                                "LimitUnit": null
+                            },
+                            {
+                                "ParameterCode": "",
+                                "AnalysisCode": "",
+                                "EstimatedValue": null,
+                                "EstimatedUnit": null,
+                                "LimitMax": null,
+                                "LimitMin": null,
+                                "LimitUnit": null
+                            }
+                        ]
+                    }
+                ],
+                "AdditionalFields": [
+                    {
+                        "AdditionalFieldCode": "",
+                        "TextValue": ""
+                    },
+                    {
+                        "AdditionalFieldCode": "",
+                        "TextValue": ""
+                    }
+                ]
+            }
+        ]
+    }
+}

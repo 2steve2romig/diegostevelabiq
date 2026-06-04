@@ -1,0 +1,187 @@
+{
+  "ReportCode": "AR-YY-##-#####-01",
+  "LabsiteCode": "Eurofins",
+  "LabsiteName": "Lab Name",
+  "BatchCode": "Lab-######",
+  "ClientName": "Your Organization Name",
+  "ReceptionDateTime": "MM/DD/YYYY HH:MM:SS AM",
+  "TransportedBy": "",
+  "PurchaseOrderDate": "MM/DD/YYYY HH:MM:SS AM",
+  "PurchaseOrderReference": "MyClientPurchaseOrderRef",
+  "AnalyticalComment": "My Comment",
+  "Header": "MyHeader",
+  "Footer": "MyFooter",
+  "ValidatedBy": "Lambda User",
+  "ValidatedOn": "MM/DD/YYYY HH:MM:SS AM",
+  "AnalysisResults": [
+    {
+      "SampleCode": "###-YYY-MMDD####",
+      "ClientSampleCode": "MyClientSampleCode",
+      "SampleDescription": "MySampleDescription",
+      "SamplePartnerReference": "MySampleReference",
+      "AnalysisStartDate": "MM/DD/YYYY HH:MM:SS AM",
+      "AnalysisEndDate": "MM/DD/YYYY HH:MM:SS AM",
+      "Deficiency": "J01",
+      "Value": 55,
+      "Unit": "ppm",
+      "CFIName": "MyCfi Name",
+      "CFIValue": 55,
+      "CFIUnit": "ppm",
+      "Notes": "MyNotes",
+      "LOQ": "",
+      "FractionCode": "J01",
+      "FractionName": "RAW PRODUCT",
+      "ParameterName": "Aluminium",
+      "ParameterCode": "########",
+      "ParameterDescription": "",
+      "TestName": "Aluminum (AOAC, most matrices)",
+      "TestCode": "#####",
+      "StandardReference": "AOAC 984.27, 927.02, 985.01, 965.17 mod",
+      "EstimatedValue": "",
+      "UnitEstimatedValue": "",
+      "LimitStringValue": "",
+      "UnitLimitStringValue": "",
+      "Uncertainty": "",
+      "SpecificLimitStringValue": "",
+      "UnitSpecificLimitStringValue": "",
+      "AdditionalFields": [
+        {
+          "AdditionalFieldCode": "RecAir",
+          "TextValue": "True"
+        },
+        {
+          "AdditionalFieldCode": "RecCond",
+          "TextValue": "True"
+        }
+      ],
+      "AccreditationName": "(Not accredited)"
+    },
+    {
+      "SampleCode": "###-YYYY-MMDD####",
+      "ClientSampleCode": "MyClientSampleCode",
+      "SampleDescription": "MySampleDescription",
+      "SamplePartnerReference": "MySampleReference",
+      "AnalysisStartDate": "MM/DD/YYYY HH:MM:SS AM",
+      "AnalysisEndDate": "MM/DD/YYYY HH:MM:SS AM",
+      "Deficiency": "J01",
+      "Value": 12,
+      "Unit": "mg KOH/g",
+      "CFIName": "MyCfi Name",
+      "CFIValue": 12,
+      "CFIUnit": "mg KOH/g",
+      "Notes": "MyNotes for 464-2022-12140178",
+      "LOQ": "",
+      "FractionCode": "J01",
+      "FractionName": "RAW PRODUCT",
+      "ParameterName": "Acid value (2)",
+      "ParameterCode": "########",
+      "ParameterDescription": "",
+      "TestName": "Acid Value (AOCS, fats & oils)",
+      "TestCode": "#####",
+      "StandardReference": "AOCS Cd 3d-63",
+      "EstimatedValue": "",
+      "UnitEstimatedValue": "",
+      "LimitStringValue": "",
+      "UnitLimitStringValue": "",
+      "Uncertainty": 0.84,
+      "SpecificLimitStringValue": "",
+      "UnitSpecificLimitStringValue": "",
+      "AdditionalFields": [
+        {
+          "AdditionalFieldCode": "RecAir",
+          "TextValue": "True"
+        },
+        {
+          "AdditionalFieldCode": "RecCond",
+          "TextValue": "True"
+        }
+      ],
+      "AccreditationName": "A2LA  ISO/IEC 17025:2005 2927.01"
+    },
+    {
+      "SampleCode": "###-YYYY-MMDD####",
+      "ClientSampleCode": "MyClientSampleCode2",
+      "SampleDescription": "MySampleDescription2",
+      "SamplePartnerReference": "MySampleReference2",
+      "AnalysisStartDate": "MM/DD/YYYY HH:MM:SS AM",
+      "AnalysisEndDate": "MM/DD/YYYY HH:MM:SS AM",
+      "Deficiency": "J01",
+      "Value": 12,
+      "Unit": "mg KOH/g",
+      "CFIName": "MyCfi Name",
+      "CFIValue": 12,
+      "CFIUnit": "mg KOH/g",
+      "Notes": "MyNotes",
+      "LOQ": "",
+      "FractionCode": "J01",
+      "FractionName": "RAW PRODUCT",
+      "ParameterName": "Fat, crude",
+      "ParameterCode": "########",
+      "ParameterDescription": "",
+      "TestName": "Crude Fat In Cocoa (OICC method)",
+      "TestCode": "#####",
+      "StandardReference": "AOCS Cd 3d-63",
+      "EstimatedValue": "",
+      "UnitEstimatedValue": "",
+      "LimitStringValue": "",
+      "UnitLimitStringValue": "",
+      "Uncertainty": 0.84,
+      "SpecificLimitStringValue": "",
+      "UnitSpecificLimitStringValue": "",
+      "AdditionalFields": [
+        {
+          "AdditionalFieldCode": "RecAir",
+          "TextValue": "True"
+        },
+        {
+          "AdditionalFieldCode": "RecCond",
+          "TextValue": "True"
+        }
+      ],
+      "AccreditationName": "A2LA  ISO/IEC 17025:2005 2927.01"
+    },
+    {
+      "SampleCode": "###-YYYY-MMDD####",
+      "ClientSampleCode": "MyClientSampleCode2",
+      "SampleDescription": "MySampleDescription2",
+      "SamplePartnerReference": "MySampleReference2",
+      "AnalysisStartDate": "MM/DD/YYYY HH:MM:SS AM",
+      "AnalysisEndDate": "MM/DD/YYYY HH:MM:SS AM",
+      "Deficiency": "J01",
+      "Value": 55,
+      "Unit": "ppm",
+      "CFIName": "MyCfi Name",
+      "CFIValue": 55,
+      "CFIUnit": "ppm",
+      "Notes": "MyNotes",
+      "LOQ": "",
+      "FractionCode": "J01",
+      "FractionName": "RAW PRODUCT",
+      "ParameterName": "Total 3-MCPD (free and bound)",
+      "ParameterCode": "########",
+      "ParameterDescription": "",
+      "TestName": "MCPD free and bound (Fats & Oils, GC-MSMS)",
+      "TestCode": "QA04G",
+      "StandardReference": "AOAC 984.27, 927.02, 985.01, 965.17 mod",
+      "EstimatedValue": "",
+      "UnitEstimatedValue": "",
+      "LimitStringValue": "",
+      "UnitLimitStringValue": "",
+      "Uncertainty": "",
+      "SpecificLimitStringValue": "",
+      "UnitSpecificLimitStringValue": "",
+      "AdditionalFields": [
+        {
+          "AdditionalFieldCode": "RecAir",
+          "TextValue": "True"
+        },
+        {
+          "AdditionalFieldCode": "RecCond",
+          "TextValue": "True"
+        }
+      ],
+      "AccreditationName": "(Not accredited)"
+    }
+  ],
+  "AdditionalFields": []
+}

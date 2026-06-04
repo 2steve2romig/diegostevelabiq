@@ -1,0 +1,46 @@
+{
+  "TransformVersion": "1.0",
+  "EurofinsPartnerCode": "EUUSHQ", 
+  "ClientCode": "HYGIENA01",
+  "ClientOrderCode": "ORD-CHOC-SAL-PCR-0001",
+  "TransportedBy": "UPS",
+  "ClientPurchaseOrderReference": "PO-2025-1001",
+  "ClientPurchaseOrderDate": "2025-10-15",
+  "QuotationCode": "Q-000123",
+  "Batch": {
+    "Samples": [
+      {
+        "SamplePartnerReference": "InternalRef-123",
+        "ClientSampleCode": "LOT-CHOC-2025-10-14",
+        "SampleDescription": "Milk chocolate bar, 45% cocoa",
+        "Comment": "Please test for Salmonella using a PCR method.",
+        "PriorityLevel": "STD",
+        "Analyses": [
+          {
+            "AnalysisCode": "SALM-PCR", 
+            "PackageCode": null,
+            "FractionCode": "",
+            "LimitCode": null,
+            "QuotationSubGroupCode": null,
+            "PriorityLevel": "STD",
+            "Parameters": [
+              {
+                "ParameterCode": "SALMONELLA",
+                "AnalysisCode": "SALM-PCR",
+                "EstimatedValue": null,
+                "EstimatedUnit": null,
+                "LimitMax": null,
+                "LimitMin": null,
+                "LimitUnit": null
+              }
+            ]
+          }
+        ],
+        "AdditionalFields": [
+          { "AdditionalFieldCode": "Matrix", "TextValue": "Chocolate" },
+          { "AdditionalFieldCode": "Storage", "TextValue": "Ambient" }
+        ]
+      }
+    ]
+  }
+}

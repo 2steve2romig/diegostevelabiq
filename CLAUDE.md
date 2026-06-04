@@ -79,6 +79,11 @@ Font: `'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif`, 13px b
 - `Labs_text_extracts/*_lab-iq-product-manager-agent.md.txt` — PM agent / domain model
 - `Labs_text_extracts/Eurofins_US-Foods_Business-to-Business_Canonical_JSON.pdf.txt` — canonical JSON reference
 - `sample_lab_catalog.csv` — sample test catalog
+- `reference/eurofins/eurofins-order-template.json` — Eurofins B2B canonical order schema
+- `reference/eurofins/eurofins-results-template.json` — Eurofins B2B canonical results schema
+- `reference/eurofins/eurofins-sample-order.json` — filled-in sample order (Salmonella PCR)
+- `reference/eurofins/eurofins-sarf-ecal.pdf` — Eurofins SARF paper form
+- `reference/eurofins/README.md` — field-by-field mapping to Lab IQ entities
 
 ## Running the project
 

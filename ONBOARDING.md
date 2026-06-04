@@ -177,5 +177,10 @@ Font: `'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif`, 13px b
 | `CHANGELOG.md` | Technical change log by sprint |
 | `LabIQ_Release_Notes_v1.md` | Stakeholder-facing feature summary + roadmap |
 | `LabIQ_User_Stories_v2.txt` | 9 user stories (v2.1) — authoritative requirements |
-| `sample_lab_catalog.csv` | Sample catalog file for testing the upload wizard |
-| `Labs_text_extracts/` | Source SRS, user stories, PM agent docs (read-only reference) |
+| `sample_lab_catalog.csv` | Sample catalog file for testing the catalog upload wizard |
+| `reference/eurofins/` | **Real Eurofins integration documents** (see README inside) |
+| `reference/eurofins/eurofins-order-template.json` | Eurofins B2B canonical order schema — what SureTrend sends |
+| `reference/eurofins/eurofins-results-template.json` | Eurofins B2B canonical results schema — what SureTrend receives |
+| `reference/eurofins/eurofins-sample-order.json` | Filled-in sample order (Salmonella PCR on chocolate) |
+| `reference/eurofins/eurofins-sarf-ecal.pdf` | Eurofins SARF paper form — electronic equivalent is the JSON order |
+| `Labs_text_extracts/` | Source SRS, user stories, PM agent docs (read-only, not in git) |
