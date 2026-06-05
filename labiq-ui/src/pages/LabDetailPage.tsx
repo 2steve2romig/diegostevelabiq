@@ -132,6 +132,18 @@ function CatalogTab({ labId, labs }: { labId: number; labs: any[] }) {
 function LocationsTab({ lab, onRefresh }: { lab: LabDetail; onRefresh: () => void }) {
   const { toast } = useToast();
   const [transitioning, setTransitioning] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const handleDeleteLocation = async (loc: LabLocationSummary) => {
+    if (!window.confirm(`Delete location "${loc.labLocationCode}"?\n\nThis removes the location and its test availability. Cannot be undone.`)) return;
+    setDeleting(loc.locationId);
+    try {
+      await api.labs.deleteLocation(lab.labId, loc.locationId);
+      toast(`${loc.labLocationCode} deleted`, 'warning');
+      onRefresh();
+    } catch (err: unknown) { toast(err instanceof Error ? err.message : 'Delete failed', 'danger'); }
+    finally { setDeleting(null); }
+  };
 
   const handleTransition = async (loc: LabLocationSummary) => {
     const next = LIFECYCLE_NEXT[loc.status];
@@ -160,13 +172,17 @@ function LocationsTab({ lab, onRefresh }: { lab: LabDetail; onRefresh: () => voi
                 <td style={{ color: 'var(--st-text-muted)', fontSize: 12 }}>{loc.address}</td>
                 <td style={{ color: 'var(--st-text-muted)', fontSize: 12 }}>{loc.timeZone}</td>
                 <td><LifecycleBadge status={loc.status} /></td>
-                <td>
+                <td style={{ whiteSpace: 'nowrap' }}>
                   {next && (
-                    <button className="btn-secondary" style={{ fontSize: 11, padding: '4px 10px' }}
+                    <button className="btn-secondary" style={{ fontSize: 11, padding: '4px 10px', marginRight: 6 }}
                       disabled={transitioning === loc.locationId} onClick={() => handleTransition(loc)}>
                       {LIFECYCLE_LABEL[next] ?? `→ ${next}`}
                     </button>
                   )}
+                  <button style={{ fontSize: 11, padding: '4px 8px', background: 'var(--st-danger-bg)', color: 'var(--st-danger)', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                    disabled={deleting === loc.locationId} onClick={() => handleDeleteLocation(loc)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             );
@@ -289,6 +305,15 @@ function TransactionsTab({ labId, locationId, locationCode, locationStatus }: { 
                   <div>By: <strong style={{ color: 'var(--st-text)' }}>{order.dispatchedBy ?? '—'}</strong></div>
                 </div>
 
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+                  <button style={{ fontSize: 10, padding: '2px 8px', background: 'var(--st-danger-bg)', color: 'var(--st-danger)', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                    onClick={async () => {
+                      if (!window.confirm(`Delete test order ${order.sureTrendOrderId}?`)) return;
+                      await api.testOrders.delete(labId, locationId, order.testOrderId);
+                      toast(`Order ${order.sureTrendOrderId} deleted`, 'warning');
+                      load();
+                    }}>Delete</button>
+                </div>
                 {order.result ? (
                   <div style={{ background: order.result.analyteCodesMatch ? 'var(--st-success-bg)' : 'var(--st-danger-bg)', borderRadius: 6, padding: '10px 14px', fontSize: 12 }}>
                     <div style={{ fontWeight: 700, color: order.result.analyteCodesMatch ? 'var(--st-success)' : 'var(--st-danger)', marginBottom: 4 }}>

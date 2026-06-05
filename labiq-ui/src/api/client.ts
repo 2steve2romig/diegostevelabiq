@@ -30,6 +30,10 @@ export const api = {
       request<{ locationId: number }>(`/api/labs/${labId}/locations`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
     transition: (labId: number, locationId: number, body: TransitionRequest) =>
       request<{ status: string }>(`/api/labs/${labId}/locations/${locationId}/lifecycle`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    delete: (labId: number) =>
+      request<void>(`/api/labs/${labId}`, { method: 'DELETE' }),
+    deleteLocation: (labId: number, locationId: number) =>
+      request<void>(`/api/labs/${labId}/locations/${locationId}`, { method: 'DELETE' }),
     audit: (labId: number) => request<AuditRecord[]>(`/api/labs/${labId}/audit`),
   },
   catalog: {
@@ -96,6 +100,8 @@ export const api = {
     simulateResult: (labId: number, locationId: number, orderId: number) =>
       request<{ testResultId: number; status: string; analyteCodesMatch: boolean; validationNotes: string }>(
         `/api/labs/${labId}/locations/${locationId}/test-orders/${orderId}/simulate-result`, { method: 'POST' }),
+    delete: (labId: number, locationId: number, orderId: number) =>
+      request<void>(`/api/labs/${labId}/locations/${locationId}/test-orders/${orderId}`, { method: 'DELETE' }),
   },
   channels: {
     list: (labId: number, locationId: number) =>

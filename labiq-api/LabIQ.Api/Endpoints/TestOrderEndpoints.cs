@@ -179,5 +179,22 @@ public static class TestOrderEndpoints
                 order.SureTrendOrderId
             });
         });
+        // DELETE /api/labs/{labId}/locations/{locationId}/test-orders/{orderId}
+        app.MapDelete("/api/labs/{labId:int}/locations/{locationId:int}/test-orders/{orderId:int}",
+            async (int labId, int locationId, int orderId, LabIqDbContext db, AuditService audit, HttpContext http) =>
+        {
+            var order = await db.TestOrders.Include(o => o.Result)
+                .FirstOrDefaultAsync(o => o.TestOrderId == orderId && o.LocationId == locationId);
+            if (order is null) return Results.NotFound();
+
+            if (order.Result != null) db.TestResults.Remove(order.Result);
+            db.TestOrders.Remove(order);
+            await db.SaveChangesAsync();
+
+            var actor = http.Request.Headers["X-User-Id"].FirstOrDefault() ?? "anonymous";
+            await audit.LogAsync("TEST_ORDER_DELETED", actor, "SureTrendAdmin", "TestOrder",
+                orderId.ToString(), labId, locationId, reason: $"Test order {order.SureTrendOrderId} deleted");
+            return Results.NoContent();
+        });
     }
 }

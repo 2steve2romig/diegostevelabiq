@@ -76,8 +76,19 @@ export function LabsPage() {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
+  const { toast } = useToast();
   const load = () => { setLoading(true); api.labs.list().then(setLabs).finally(() => setLoading(false)); };
   useEffect(() => { load(); }, []);
+
+  const handleDelete = async (lab: LabSummary, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${lab.legalName}" (${lab.labCompanyCode})?\n\nThis will remove the lab, all its locations, and its entire test catalog. This cannot be undone.`)) return;
+    try {
+      await api.labs.delete(lab.labId);
+      toast(`${lab.legalName} deleted`, 'warning');
+      load();
+    } catch (err: unknown) { toast(err instanceof Error ? err.message : 'Delete failed', 'danger'); }
+  };
 
   const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const filtered = labs.filter(l => !search || l.legalName.toLowerCase().includes(search.toLowerCase()) || l.labCompanyCode.toLowerCase().includes(search.toLowerCase()));
@@ -129,7 +140,8 @@ export function LabsPage() {
                   <td onClick={e => e.stopPropagation()} style={{ whiteSpace: 'nowrap' }}>
                     <button className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px', marginRight: 4 }} onClick={() => navigate(`/labs/${lab.labId}`)}>Edit</button>
                     <button className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px', marginRight: 4 }} onClick={() => navigate('/offerings')}>Offerings</button>
-                    <button className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px' }} onClick={() => navigate(`/labs/${lab.labId}`)}>Add Tests</button>
+                    <button className="btn-secondary" style={{ fontSize: 11, padding: '3px 8px', marginRight: 4 }} onClick={() => navigate(`/labs/${lab.labId}`)}>Add Tests</button>
+                    <button style={{ fontSize: 11, padding: '3px 8px', background: 'var(--st-danger-bg)', color: 'var(--st-danger)', border: 'none', borderRadius: 4, cursor: 'pointer' }} onClick={e => handleDelete(lab, e)}>Delete</button>
                   </td>
                 </tr>
               ))}

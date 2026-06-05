@@ -158,6 +158,69 @@ public static class LabEndpoints
             return Results.Ok(new { locationId, Status = target.ToString() });
         });
 
+        // DELETE /api/labs/{id}
+        app.MapDelete("/api/labs/{id:int}", async (int id, LabIqDbContext db, AuditService audit, HttpContext http) =>
+        {
+            var lab = await db.Labs
+                .Include(l => l.Locations)
+                .Include(l => l.TestCodes).ThenInclude(t => t.ParameterAssociations)
+                .Include(l => l.TestCodes).ThenInclude(t => t.Descriptions)
+                .Include(l => l.ParameterCodes).ThenInclude(p => p.Descriptions)
+                .FirstOrDefaultAsync(l => l.LabId == id);
+            if (lab is null) return Results.NotFound();
+
+            // Block delete if any location is Live or has active orders
+            var liveLocation = lab.Locations.FirstOrDefault(l =>
+                l.Status == LabLifecycleState.Live || l.Status == LabLifecycleState.Suspended);
+            if (liveLocation != null)
+                return Results.BadRequest(new { error = $"Cannot delete: location {liveLocation.LabLocationCode} is {liveLocation.Status}. Deactivate all locations before deleting the lab." });
+
+            var actor = http.Request.Headers["X-User-Id"].FirstOrDefault() ?? "anonymous";
+
+            // Cascade: remove availability, associations, descriptions, then entities
+            foreach (var tc in lab.TestCodes)
+            {
+                db.TestParameterAssociations.RemoveRange(tc.ParameterAssociations);
+                db.TestDescriptions.RemoveRange(tc.Descriptions);
+            }
+            foreach (var pc in lab.ParameterCodes)
+                db.ParameterDescriptions.RemoveRange(pc.Descriptions);
+
+            var availabilities = await db.LocationTestAvailabilities
+                .Where(a => lab.Locations.Select(l => l.LocationId).Contains(a.LocationId)).ToListAsync();
+            db.LocationTestAvailabilities.RemoveRange(availabilities);
+
+            db.TestCodes.RemoveRange(lab.TestCodes);
+            db.ParameterCodes.RemoveRange(lab.ParameterCodes);
+            db.LabLocations.RemoveRange(lab.Locations);
+            db.Labs.Remove(lab);
+            await db.SaveChangesAsync();
+
+            await audit.LogAsync("LAB_DELETED", actor, "SureTrendAdmin", "Lab", id.ToString(), id, reason: $"Lab {lab.LabCompanyCode} deleted");
+            return Results.NoContent();
+        });
+
+        // DELETE /api/labs/{labId}/locations/{locationId}
+        app.MapDelete("/api/labs/{labId:int}/locations/{locationId:int}", async (int labId, int locationId, LabIqDbContext db, AuditService audit, HttpContext http) =>
+        {
+            var location = await db.LabLocations
+                .FirstOrDefaultAsync(l => l.LabId == labId && l.LocationId == locationId);
+            if (location is null) return Results.NotFound();
+
+            if (location.Status == LabLifecycleState.Live || location.Status == LabLifecycleState.Suspended)
+                return Results.BadRequest(new { error = $"Cannot delete a {location.Status} location. Suspend it first." });
+
+            var actor = http.Request.Headers["X-User-Id"].FirstOrDefault() ?? "anonymous";
+
+            var availabilities = await db.LocationTestAvailabilities.Where(a => a.LocationId == locationId).ToListAsync();
+            db.LocationTestAvailabilities.RemoveRange(availabilities);
+            db.LabLocations.Remove(location);
+            await db.SaveChangesAsync();
+
+            await audit.LogAsync("LOCATION_DELETED", actor, "SureTrendAdmin", "LabLocation", locationId.ToString(), labId, locationId, reason: $"Location {location.LabLocationCode} deleted");
+            return Results.NoContent();
+        });
+
         app.MapGet("/api/labs/{id:int}/audit", async (int id, LabIqDbContext db) =>
         {
             var events = await db.AuditEvents
