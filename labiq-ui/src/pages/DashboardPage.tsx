@@ -72,20 +72,25 @@ export function DashboardPage() {
         {/* Journey */}
         <div className="card" style={{ padding: 20 }}>
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16 }}>Customer Onboarding Journey</div>
-          <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {JOURNEY_STEPS.map((step, i) => (
-              <div key={step.n} style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '6px 8px', maxWidth: 80 }}>
+              <div key={step.n} style={{ display: 'flex', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '6px 4px', width: 76 }}>
                   <div style={{
-                    width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: 32, height: 32, minWidth: 32, minHeight: 32,
+                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: step.done ? 'var(--st-success)' : 'var(--st-grey-bg)',
                     color: step.done ? 'white' : 'var(--st-text-muted)', fontWeight: 700, fontSize: 12,
-                    border: step.done ? 'none' : '2px solid var(--st-border)',
+                    border: `2px solid ${step.done ? 'var(--st-success)' : 'var(--st-border)'}`,
+                    flexShrink: 0, boxSizing: 'border-box',
                   }} title={step.desc}>{step.done ? '✓' : step.n}</div>
                   <div style={{ fontSize: 9, fontWeight: 600, color: step.done ? 'var(--st-text)' : 'var(--st-text-muted)', textAlign: 'center', lineHeight: 1.3 }}>{step.label}</div>
                   <div style={{ fontSize: 8, color: 'var(--st-text-soft)', textAlign: 'center', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{step.desc}</div>
                 </div>
-                {i < JOURNEY_STEPS.length - 1 && <div style={{ height: 2, width: 12, background: step.done ? 'var(--st-success)' : 'var(--st-border)', marginBottom: 32, flexShrink: 0 }} />}
+                {i < JOURNEY_STEPS.length - 1 && (
+                  <div style={{ height: 2, width: 8, flexShrink: 0, marginTop: 22,
+                    background: step.done ? 'var(--st-success)' : 'var(--st-border)' }} />
+                )}
               </div>
             ))}
           </div>
